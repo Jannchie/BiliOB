@@ -1,7 +1,7 @@
 #coding=utf-8
 import scrapy
 from scrapy.http import Request
-from biliob_spider.items import videoItem
+from biliob_spider.items import VideoItem
 import time
 import json
 import logging
@@ -105,8 +105,9 @@ class VideoSpider(scrapy.spiders.Spider):
     start_urls = []
     custom_settings = {
         'ITEM_PIPELINES': {
-            'obilibili_spider.pipelines.VideoPipeline': 300
-        }
+            'biliob_spider.pipelines.VideoPipeline': 300,
+        },
+        'DOWNLOAD_DELAY' : 1
     }
     def __init__(self,start_aid=1,length=99999999,limit_view=50000, *args, **kwargs):
         # super(HighSpeedVideoSpider2, self).__init__(*args, **kwargs)
@@ -140,7 +141,7 @@ class VideoSpider(scrapy.spiders.Spider):
                 title = d[each_key]['title']
                 datetime = d[each_key]['pubdate']
                 tid = d[each_key]['tid']
-                item = videoItem()
+                item = VideoItem()
                 item['aid'] = aid
                 item['author'] = author
                 item['view'] = view
