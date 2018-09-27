@@ -5,7 +5,6 @@ from biliob_spider.items import AuthorItem
 import time
 import json
 import logging
-from dateutil import parser
 from pymongo import MongoClient
 import datetime
 

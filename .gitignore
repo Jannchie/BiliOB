@@ -1,4 +1,5 @@
 *.pyc
+*.log
 db.py
 
 biliob_spider.log
