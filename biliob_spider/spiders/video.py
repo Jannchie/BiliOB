@@ -5,7 +5,6 @@ from biliob_spider.items import VideoItem
 import time
 import json
 import logging
-from dateutil import parser
 from pymongo import MongoClient
 sub_channel_2_channel = {
     'ASMR': '生活',
