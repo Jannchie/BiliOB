@@ -1,3 +1,6 @@
+#!/usr/bin/python3.6
+# -*- coding:utf-8 -*-
+
 import schedule
 import time
 from subprocess import Popen
@@ -21,16 +24,15 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 def update_author():
-    logging.info("开始定期更新author数据...")
-    Popen("scrapy crawl authorUpdate")
+    Popen(["scrapy","crawl","authorUpdate"])
 
 def auto_add_author():
-    logging.info("开始定期更新author数据...")
-    Popen("scrapy crawl authorAutoAdd")
+    Popen(["scrapy","crawl","authorAutoAdd"])
 
 schedule.every().hour.do(update_author)
 schedule.every().day.at('13:00').do(auto_add_author)
 
+logging.info('开始运行计划任务..')
 while True:
     schedule.run_pending()
     time.sleep(60)
