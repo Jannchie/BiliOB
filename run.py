@@ -24,10 +24,10 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 def update_author():
-    Popen("scrapy crawl authorUpdate")
+    Popen(["scrapy","crawl","authorUpdate"])
 
 def auto_add_author():
-    Popen("scrapy crawl authorAutoAdd")
+    Popen(["scrapy","crawl","authorAutoAdd"])
 
 schedule.every().hour.do(update_author)
 schedule.every().day.at('13:00').do(auto_add_author)

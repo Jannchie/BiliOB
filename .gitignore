@@ -1,5 +1,5 @@
 *.pyc
 *.log
 db.py
-
+nohup.out
 biliob_spider.log
