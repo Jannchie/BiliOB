@@ -5,7 +5,6 @@ from biliob_spider.items import AuthorItem
 import time
 import json
 import logging
-from dateutil import parser
 from pymongo import MongoClient
 import datetime
 
@@ -66,6 +65,3 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
             'datetime': datetime.datetime.now()
         }]
         yield item
-
-
-# scrapy crawl VideoTagSpider -a start_aid=26053983 -a length=2000000 -s JOBDIR=tag-07-21 -L INFO

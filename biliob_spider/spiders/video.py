@@ -10,7 +10,7 @@ from pymongo import MongoClient
 sub_channel_2_channel = {
     'ASMR': '生活',
     'GMV': '游戏',
-    'Korea相关': '娱乐',
+    'Korea相关': '娱乐', 
     'MAD·AMV': '动画',
     'MMD·3D': '动画',
     'Mugen': '游戏',

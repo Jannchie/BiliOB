@@ -33,3 +33,8 @@ class AuthorItem(scrapy.Item):
     data = scrapy.Field()
     level = scrapy.Field()
 
+class VideoOnline(scrapy.Item):
+    title = scrapy.Field()
+    author = scrapy.Field()
+    data = scrapy.Field()
+
