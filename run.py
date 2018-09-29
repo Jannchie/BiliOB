@@ -29,8 +29,12 @@ def update_author():
 def auto_add_author():
     Popen(["scrapy","crawl","authorAutoAdd"])
 
+def online():
+    Popen(['scrapy','crawl','online'])
+
 schedule.every().hour.do(update_author)
-schedule.every().day.at('13:00').do(auto_add_author)
+schedule.every().day.at('14:00').do(auto_add_author)
+schedule.every().minute.do(online)
 
 logging.info('开始运行计划任务..')
 while True:

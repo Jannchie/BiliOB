@@ -18,7 +18,7 @@ class AuthorUpdate(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
         },
-        'DOWNLOAD_DELAY' : 0.5
+        'DOWNLOAD_DELAY' : 1
     }
 
     def __init__(self):
@@ -59,13 +59,13 @@ class AuthorUpdate(scrapy.spiders.Spider):
             item['official'] = official
             item['sex'] = sex
             item['level'] = int(level)
-            item['data'] = [{
+            item['data'] = {
                 'fans': int(fans),
                 'attention': int(attention),
                 'archive_count': int(archive_count),
                 'article_count': int(article_count),
                 'datetime': datetime.datetime.now()
-            }]
+            }
             yield item
         except Exception as error:
             # 出现错误时打印错误日志

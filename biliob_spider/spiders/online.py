@@ -30,7 +30,7 @@ class OnlineSpider(scrapy.spiders.Spider):
                 item = VideoOnline()
                 item['title'] = title_list[i]
                 item['author'] = author_list[i]
-                item['data'] = [{'datetime':datetime.datetime.now(),'number':watch_list[i]}]
+                item['data'] = {'datetime':datetime.datetime.now(),'number':watch_list[i]}
                 yield item
 
         except Exception as error:

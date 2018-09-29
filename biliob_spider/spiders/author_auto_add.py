@@ -15,7 +15,8 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
     custom_settings = {
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
-        }
+        },
+        'DOWNLOAD_DELAY' : 10
     }
 
     def parse(self, response):
@@ -57,11 +58,11 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         item['official'] = official
         item['sex'] = sex
         item['level'] = int(level)
-        item['data'] = [{
+        item['data'] = {
             'fans': int(fans),
             'attention': int(attention),
             'archive_count': int(archive_count),
             'article_count': int(article_count),
             'datetime': datetime.datetime.now()
-        }]
+        }
         yield item
