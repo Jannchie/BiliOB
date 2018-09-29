@@ -2,10 +2,13 @@
 import scrapy
 from scrapy.http import Request
 from biliob_spider.items import VideoItem
+from datetime import datetime
 import time
 import json
 import logging
 from pymongo import MongoClient
+from db import settings
+
 sub_channel_2_channel = {
     'ASMR': '生活',
     'GMV': '游戏',
@@ -108,19 +111,30 @@ class VideoSpider(scrapy.spiders.Spider):
         },
         'DOWNLOAD_DELAY' : 1
     }
-    def __init__(self,start_aid=1,length=99999999,limit_view=50000, *args, **kwargs):
-        # super(HighSpeedVideoSpider2, self).__init__(*args, **kwargs)
-        print("开始的av号为:" + str(start_aid) + ",计划抓取的视频个数为：" + str(length))
-        self.start_aid = int(start_aid)
-        self.length = int(length)
-        self.limit_view = limit_view
+    def __init__(self):
+        # 链接mongoDB
+        self.client = MongoClient(settings['MINGO_HOST'], 27017)
+        # 数据库登录需要帐号密码
+        self.client.admin.authenticate(settings['MINGO_USER'],
+                                       settings['MONGO_PSW'])
+        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.coll = self.db['video']  # 获得collection的句柄
+
     def start_requests(self):
-        i = (x for x in range(self.start_aid, self.start_aid + self.length))
-        while True:
-            aid_str = ''
-            for j in range(100):
-                aid_str += str(next(i))+','
-            yield Request("https://api.bilibili.com/x/article/archives?ids=" + aid_str.rstrip(','))
+        c = self.coll.find()
+        aid_list = []
+        for each_doc in c:
+            aid_list.append(each_doc['aid'])
+        i = 0
+        while aid_list != []:
+            if i == 0:
+                aid_str = ''
+            aid_str += str(aid_list.pop())+','
+            i = i+1
+            if i == 100 or aid_list == []:
+                i = 0
+                yield Request("https://api.bilibili.com/x/article/archives?ids=" + aid_str.rstrip(','))
+            
     def parse(self, response):
         try:
             r = json.loads(response.body)
@@ -136,23 +150,29 @@ class VideoSpider(scrapy.spiders.Spider):
                 share = d[each_key]['stat']['share']
                 like = d[each_key]['stat']['like']
                 dislike = d[each_key]['stat']['dislike']
+
+                data = {
+                    'view':int(view),
+                    'favorite':int(favorite),
+                    'danmaku':int(danmaku),
+                    'coin':int(coin),
+                    'share':int(share),
+                    'like':int(like),
+                    'dislike':int(dislike),
+                    'datetime': datetime.now()
+                }
+
                 subChannel = d[each_key]['tname']
                 title = d[each_key]['title']
-                datetime = d[each_key]['pubdate']
+                date = d[each_key]['pubdate']
                 tid = d[each_key]['tid']
                 item = VideoItem()
                 item['aid'] = aid
                 item['author'] = author
-                item['view'] = view
-                item['favorite'] = favorite
-                item['coin'] = coin
-                item['share'] = share
-                item['like'] = like
-                item['dislike'] = dislike
-                item['danmaku'] = danmaku
+                item['data'] = data
                 item['title'] = title
                 item['subChannel'] = subChannel
-                item['datetime'] = datetime
+                item['datetime'] = date
                 if subChannel != '':
                     item['channel'] = sub_channel_2_channel[subChannel]
                 elif subChannel == '资讯':
@@ -164,10 +184,8 @@ class VideoSpider(scrapy.spiders.Spider):
                         item['channel'] == '娱乐'
                 else:
                     item['channel'] = None
+                yield item
                 
-                # 只收录大于limit_view的视频
-                if view > self.limit_view:
-                    yield item
         except Exception as error:
             # 出现错误时打印错误日志
             if r['code'] == -404:
