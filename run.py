@@ -5,6 +5,8 @@ import schedule
 import time
 from subprocess import Popen
 import logging
+import threading
+
 
 # 第一步，创建一个logger
 logger = logging.getLogger()
@@ -29,12 +31,24 @@ def update_author():
 def auto_add_author():
     Popen(["scrapy","crawl","authorAutoAdd"])
 
+def video_watcher():
+    Popen(["scrapy","crawl","videoWatcher"])
+
+def video_spider():
+    Popen(["scrapy","crawl","videoSpider"])
+
 def online():
     Popen(['scrapy','crawl','online'])
 
-schedule.every().hour.do(update_author)
-schedule.every().day.at('14:00').do(auto_add_author)
-schedule.every().minute.do(online)
+def run_threaded(job_func):
+     job_thread = threading.Thread(target=job_func)
+     job_thread.start()
+
+schedule.every().hour.do(run_threaded,update_author)
+schedule.every().hour.do(run_threaded,video_watcher)
+schedule.every(2).hours.do(run_threaded,video_spider)
+schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
+schedule.every().minute.do(run_threaded,online)
 
 logging.info('开始运行计划任务..')
 while True:
