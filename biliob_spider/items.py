@@ -13,13 +13,7 @@ class VideoItem(scrapy.Item):
     aid = scrapy.Field()
     datetime = scrapy.Field()
     author = scrapy.Field()
-    view = scrapy.Field()
-    favorite = scrapy.Field()
-    coin = scrapy.Field()
-    share = scrapy.Field()
-    like = scrapy.Field()
-    danmaku = scrapy.Field()
-    dislike = scrapy.Field()
+    data = scrapy.Field()
     subChannel = scrapy.Field()
     title = scrapy.Field()
 
@@ -37,4 +31,7 @@ class VideoOnline(scrapy.Item):
     title = scrapy.Field()
     author = scrapy.Field()
     data = scrapy.Field()
-
+class VideoWatcherItem(scrapy.Item):
+    mid = scrapy.Field()
+    aid = scrapy.Field()
+    channels = scrapy.Field()

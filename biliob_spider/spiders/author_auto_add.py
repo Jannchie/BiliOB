@@ -48,8 +48,8 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         attention = j['data']['card']['attention']
         level = j['data']['card']['level_info']['current_level']
         official = j['data']['card']['Official']['title']
-        archive_count = j['data']['archive_count']
-        article_count = j['data']['article_count']
+        archive = j['data']['archive']
+        article = j['data']['article']
         face = j['data']['card']['face']
         item = AuthorItem()
         item['mid'] = int(mid)
@@ -61,8 +61,8 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         item['data'] = {
             'fans': int(fans),
             'attention': int(attention),
-            'archive_count': int(archive_count),
-            'article_count': int(article_count),
+            'archive': int(archive),
+            'article': int(article),
             'datetime': datetime.datetime.now()
         }
         yield item
