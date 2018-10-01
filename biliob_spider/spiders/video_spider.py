@@ -98,7 +98,6 @@ sub_channel_2_channel = {
     '生活': '生活',
     '音乐': '音乐',
     '纪录片': '纪录片',
-    '生活': '生活',
     '游戏': '游戏'
 }
 class VideoSpider(scrapy.spiders.Spider):
