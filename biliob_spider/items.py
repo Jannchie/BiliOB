@@ -16,6 +16,8 @@ class VideoItem(scrapy.Item):
     data = scrapy.Field()
     subChannel = scrapy.Field()
     title = scrapy.Field()
+    mid = scrapy.Field()
+    pic = scrapy.Field()
 
 
 class AuthorItem(scrapy.Item):

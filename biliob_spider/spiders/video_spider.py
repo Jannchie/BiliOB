@@ -143,6 +143,7 @@ class VideoSpider(scrapy.spiders.Spider):
                 
                 aid = d[each_key]['stat']['aid']
                 author = d[each_key]['owner']['name']
+                mid = d[each_key]['owner']['mid']
                 view = d[each_key]['stat']['view']
                 favorite = d[each_key]['stat']['favorite']
                 danmaku = favorite = d[each_key]['stat']['danmaku']
@@ -166,13 +167,17 @@ class VideoSpider(scrapy.spiders.Spider):
                 title = d[each_key]['title']
                 date = d[each_key]['pubdate']
                 tid = d[each_key]['tid']
+                pic = d[each_key]['pic']
                 item = VideoItem()
                 item['aid'] = aid
+                item['mid'] = mid
+                item['pic'] = pic
                 item['author'] = author
                 item['data'] = data
                 item['title'] = title
                 item['subChannel'] = subChannel
                 item['datetime'] = date
+                
                 if subChannel.encode('utf-8') != '':
                     item['channel'] = sub_channel_2_channel[subChannel.encode('utf-8')]
 
