@@ -29,6 +29,8 @@ class VideoPipeline(object):
                     "author": item['author'],
                     "subChannel": item['subChannel'],
                     "channel": item['channel'],
+                    "mid": item['mid'],
+                    "pic": item['pic'],
                     "title": item['title'],
                     "datetime": datetime.datetime.fromtimestamp(
                         item['datetime'])
