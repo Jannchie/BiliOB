@@ -49,8 +49,8 @@ class AuthorUpdate(scrapy.spiders.Spider):
             attention = j['data']['card']['attention']
             level = j['data']['card']['level_info']['current_level']
             official = j['data']['card']['Official']['title']
-            archive = j['data']['archive']
-            article = j['data']['article']
+            archive = j['data']['archive_count']
+            article = j['data']['article_count']
             face = j['data']['card']['face']
             item = AuthorItem()
             item['mid'] = int(mid)

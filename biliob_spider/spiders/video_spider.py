@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 import scrapy
 from scrapy.http import Request
 from biliob_spider.items import VideoItem
@@ -141,6 +141,7 @@ class VideoSpider(scrapy.spiders.Spider):
             d = r["data"]
             keys = list(d.keys())
             for each_key in keys:
+                
                 aid = d[each_key]['stat']['aid']
                 author = d[each_key]['owner']['name']
                 view = d[each_key]['stat']['view']
@@ -161,7 +162,7 @@ class VideoSpider(scrapy.spiders.Spider):
                     'dislike':int(dislike),
                     'datetime': datetime.now()
                 }
-
+                
                 subChannel = d[each_key]['tname']
                 title = d[each_key]['title']
                 date = d[each_key]['pubdate']
@@ -173,15 +174,16 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['title'] = title
                 item['subChannel'] = subChannel
                 item['datetime'] = date
-                if subChannel != '':
-                    item['channel'] = sub_channel_2_channel[subChannel]
-                elif subChannel == '资讯':
+                if subChannel.encode('utf-8') != '':
+                    item['channel'] = sub_channel_2_channel[subChannel.encode('utf-8')]
+
+                elif subChannel.encode('utf-8') == '资讯':
                     if tid == 51:
-                        item['channel'] == '番剧'
+                        item['channel'] == u'番剧'
                     if tid == 170:
-                        item['channel'] == '国创'
+                        item['channel'] == u'国创'
                     if tid == 159:
-                        item['channel'] == '娱乐'
+                        item['channel'] == u'娱乐'
                 else:
                     item['channel'] = None
                 yield item
@@ -190,8 +192,7 @@ class VideoSpider(scrapy.spiders.Spider):
             # 出现错误时打印错误日志
             if r['code'] == -404:
                 return
-            logging.error("视频爬虫在解析时发生错误")
+            logging.error(u"视频爬虫在解析时发生错误")
             logging.error(item)
             logging.error(response.url)
             logging.error(error)
-# scrapy crawl VideoTagSpider -a start_aid=26053983 -a length=2000000 -s JOBDIR=tag-07-21 -L INFO

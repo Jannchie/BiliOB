@@ -12,7 +12,7 @@
 import random
 
 LOG_FILE = "biliob_spider.log"
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "ERROR"
 
 BOT_NAME = 'biliob_spider'
 
