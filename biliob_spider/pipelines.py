@@ -88,12 +88,15 @@ class OnlinePipeline(object):
 
     def process_item(self, item, spider):
         try:
+            
             self.coll.update_one({
                 "title": item["title"]
             }, {
                 "$set": {
                     "title": item['title'],
                     "author": item['author'],
+                    "channel": item['channel'],
+                    "subChannel": item['subChannel'],
                 },
                 "$addToSet": {
                     'data': item['data']
