@@ -8,6 +8,7 @@ import logging
 from pymongo import MongoClient
 import datetime
 
+
 class AuthorAutoAddSpider(scrapy.spiders.Spider):
     name = "authorAutoAdd"
     allowed_domains = ["bilibili.com"]
@@ -16,7 +17,7 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
         },
-        'DOWNLOAD_DELAY' : 10
+        'DOWNLOAD_DELAY': 10
     }
 
     def parse(self, response):

@@ -18,7 +18,7 @@ class AuthorUpdate(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
         },
-        'DOWNLOAD_DELAY' : 1
+        'DOWNLOAD_DELAY': 1
     }
 
     def __init__(self):
@@ -31,11 +31,11 @@ class AuthorUpdate(scrapy.spiders.Spider):
         self.coll = self.db['author']  # 获得collection的句柄
 
     def start_requests(self):
-        c = self.coll.find()
+        c = self.coll.find({}, {"mid": 1})
         for each_doc in c:
             yield Request(
-                "https://api.bilibili.com/x/web-interface/card?mid=" +
-                str(each_doc['mid']),
+                "https://api.bilibili.com/x/web-interface/card?mid=" + str(
+                    each_doc['mid']),
                 method='GET')
 
     def parse(self, response):
