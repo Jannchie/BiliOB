@@ -8,6 +8,7 @@ import logging
 from pymongo import MongoClient
 import datetime
 
+
 class OnlineSpider(scrapy.spiders.Spider):
     name = "online"
     allowed_domains = ["bilibili.com"]
@@ -31,7 +32,10 @@ class OnlineSpider(scrapy.spiders.Spider):
                 item = VideoOnline()
                 item['title'] = title_list[i]
                 item['author'] = author_list[i]
-                item['data'] = {'datetime':datetime.datetime.now(),'number':watch_list[i]}
+                item['data'] = {
+                    'datetime': datetime.datetime.now(),
+                    'number': watch_list[i]
+                }
                 item['aid'] = href_list[i][9:-1]
                 # 为了爬取分区等数据，需要进入每一个视频的详情页面进行抓取
                 yield Request(
@@ -44,20 +48,22 @@ class OnlineSpider(scrapy.spiders.Spider):
             logging.error(response.url)
             logging.error(error)
 
-    def detailParse(self,response):
+    def detailParse(self, response):
         try:
             item = response.meta['item']
             c = response.xpath("//span[@class='crumb'][2]/a/text()").extract()
             if c != []:
-                item['channel'] = response.xpath("//span[@class='crumb'][2]/a/text()").extract()[0]
+                item['channel'] = response.xpath(
+                    "//span[@class='crumb'][2]/a/text()").extract()[0]
             else:
                 item['channel'] = '番剧'
 
             c = response.xpath("//span[@class='crumb'][3]/a/text()").extract()
             if c != []:
-                item['subChannel'] = response.xpath("//span[@class='crumb'][3]/a/text()").extract()[0]
+                item['subChannel'] = response.xpath(
+                    "//span[@class='crumb'][3]/a/text()").extract()[0]
             else:
-                item['subChannel'] = '番剧'    
+                item['subChannel'] = '番剧'
 
             yield item
         except Exception as error:

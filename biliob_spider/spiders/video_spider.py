@@ -12,7 +12,7 @@ from db import settings
 sub_channel_2_channel = {
     'ASMR': '生活',
     'GMV': '游戏',
-    'Korea相关': '娱乐', 
+    'Korea相关': '娱乐',
     'MAD·AMV': '动画',
     'MMD·3D': '动画',
     'Mugen': '游戏',
@@ -100,6 +100,8 @@ sub_channel_2_channel = {
     '纪录片': '纪录片',
     '游戏': '游戏'
 }
+
+
 class VideoSpider(scrapy.spiders.Spider):
     name = "videoSpider"
     allowed_domains = ["bilibili.com"]
@@ -108,8 +110,9 @@ class VideoSpider(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.VideoPipeline': 300,
         },
-        'DOWNLOAD_DELAY' : 1
+        'DOWNLOAD_DELAY': 1
     }
+
     def __init__(self):
         # 链接mongoDB
         self.client = MongoClient(settings['MINGO_HOST'], 27017)
@@ -120,27 +123,39 @@ class VideoSpider(scrapy.spiders.Spider):
         self.coll = self.db['video']  # 获得collection的句柄
 
     def start_requests(self):
-        c = self.coll.find()
+        # 只需要aid
+        c = self.coll.find({}, {'aid': 1})
+
+        x = 0
+
         aid_list = []
         for each_doc in c:
+
+            print(x)
+            x = x + 1
+
             aid_list.append(each_doc['aid'])
         i = 0
         while aid_list != []:
             if i == 0:
                 aid_str = ''
-            aid_str += str(aid_list.pop())+','
-            i = i+1
+            aid_str += str(aid_list.pop()) + ','
+            i = i + 1
             if i == 100 or aid_list == []:
                 i = 0
-                yield Request("https://api.bilibili.com/x/article/archives?ids=" + aid_str.rstrip(','))
-            
+                print('yield')
+                yield Request(
+                    "https://api.bilibili.com/x/article/archives?ids=" +
+                    aid_str.rstrip(','))
+
     def parse(self, response):
         try:
+            print('parse')
             r = json.loads(response.body)
             d = r["data"]
             keys = list(d.keys())
             for each_key in keys:
-                
+
                 aid = d[each_key]['stat']['aid']
                 author = d[each_key]['owner']['name']
                 mid = d[each_key]['owner']['mid']
@@ -153,16 +168,16 @@ class VideoSpider(scrapy.spiders.Spider):
                 dislike = d[each_key]['stat']['dislike']
 
                 data = {
-                    'view':int(view),
-                    'favorite':int(favorite),
-                    'danmaku':int(danmaku),
-                    'coin':int(coin),
-                    'share':int(share),
-                    'like':int(like),
-                    'dislike':int(dislike),
+                    'view': int(view),
+                    'favorite': int(favorite),
+                    'danmaku': int(danmaku),
+                    'coin': int(coin),
+                    'share': int(share),
+                    'like': int(like),
+                    'dislike': int(dislike),
                     'datetime': datetime.now()
                 }
-                
+
                 subChannel = d[each_key]['tname']
                 title = d[each_key]['title']
                 date = d[each_key]['pubdate']
@@ -177,26 +192,25 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['title'] = title
                 item['subChannel'] = subChannel
                 item['datetime'] = date
-                
-                if subChannel.encode('utf-8') != '':
-                    item['channel'] = sub_channel_2_channel[subChannel.encode('utf-8')]
 
-                elif subChannel.encode('utf-8') == '资讯':
+                if subChannel != '':
+                    item['channel'] = sub_channel_2_channel[subChannel]
+                elif subChannel == '资讯':
                     if tid == 51:
-                        item['channel'] == u'番剧'
+                        item['channel'] == '番剧'
                     if tid == 170:
-                        item['channel'] == u'国创'
+                        item['channel'] == '国创'
                     if tid == 159:
-                        item['channel'] == u'娱乐'
+                        item['channel'] == '娱乐'
                 else:
                     item['channel'] = None
                 yield item
-                
+
         except Exception as error:
             # 出现错误时打印错误日志
             if r['code'] == -404:
                 return
-            logging.error(u"视频爬虫在解析时发生错误")
+            logging.error("视频爬虫在解析时发生错误")
             logging.error(item)
             logging.error(response.url)
             logging.error(error)

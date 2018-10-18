@@ -19,7 +19,7 @@ class VideoWatch(scrapy.spiders.Spider):
             'biliob_spider.pipelines.VideoAddPipeline': 300,
             'biliob_spider.pipelines.AuthorChannelPipeline': 301
         },
-        'DOWNLOAD_DELAY' : 1
+        'DOWNLOAD_DELAY': 1
     }
 
     def __init__(self):
@@ -32,16 +32,18 @@ class VideoWatch(scrapy.spiders.Spider):
         self.coll = self.db['author']  # 获得collection的句柄
 
     def start_requests(self):
-        c = self.coll.find()
+        c = self.coll.find({}, {'mid': 1})
         for each_doc in c:
             yield Request(
                 'http://space.bilibili.com/ajax/member/getSubmitVideos?mid=' +
-                str(each_doc['mid'])+'&pagesize=1&page=1&order=pubdate',
+                str(each_doc['mid']) + '&pagesize=1&page=1&order=pubdate',
                 method='GET')
 
     def parse(self, response):
         try:
             j = json.loads(response.body)
+            if len(j['data']['vlist']) == 0:
+                return
             channels = j['data']['tlist']
             list_channel = []
             for each_channel in channels:
