@@ -28,6 +28,9 @@ logger.addHandler(fh)
 def bangumi():
     Popen(["scrapy","crawl","bangumi"])
 
+def donghua():
+    Popen(["scrapy","crawl","donghua"])
+
 def update_author():
     Popen(["scrapy","crawl","authorUpdate"])
 
@@ -52,6 +55,7 @@ schedule.every(120).minutes.do(run_threaded,video_watcher)
 schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
 schedule.every().day.at('16:30').do(run_threaded,bangumi)
+schedule.every().day.at('16:30').do(run_threaded,donghua)
 schedule.every().minute.do(run_threaded,online)
 
 logging.info('开始运行计划任务..')
