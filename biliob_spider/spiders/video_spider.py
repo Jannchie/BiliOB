@@ -161,7 +161,7 @@ class VideoSpider(scrapy.spiders.Spider):
                 mid = d[each_key]['owner']['mid']
                 view = d[each_key]['stat']['view']
                 favorite = d[each_key]['stat']['favorite']
-                danmaku = favorite = d[each_key]['stat']['danmaku']
+                danmaku = d[each_key]['stat']['danmaku']
                 coin = d[each_key]['stat']['coin']
                 share = d[each_key]['stat']['share']
                 like = d[each_key]['stat']['like']
