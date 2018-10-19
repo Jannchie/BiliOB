@@ -7,6 +7,10 @@
 
 import scrapy
 
+class BangumiItem(scrapy.Item):
+    title = scrapy.Field()
+    data = scrapy.Field()
+
 
 class VideoItem(scrapy.Item):
     channel = scrapy.Field()
