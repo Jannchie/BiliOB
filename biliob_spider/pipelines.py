@@ -70,6 +70,33 @@ class BangumiPipeLine(object):
             # 出现错误时打印错误日志
             logging.error(error)
 
+class DonghuaPipeLine(object):
+    def __init__(self):
+        # 链接mongoDB
+        self.client = MongoClient(settings['MINGO_HOST'], 27017)
+        # 数据库登录需要帐号密码
+        self.client.admin.authenticate(settings['MINGO_USER'],
+                                       settings['MONGO_PSW'])
+        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.coll = self.db['donghua']  # 获得collection的句柄
+
+    def process_item(self, item, spider):
+        try:
+            self.coll.update_one({
+                "title": item['title']
+            }, {
+                "$set": {
+                    "title": item['title'],
+                },
+                "$addToSet": {
+                    'data': item['data']
+                }
+            }, True)
+            return item
+        except Exception as error:
+            # 出现错误时打印错误日志
+            logging.error(error)
+
 class AuthorPipeline(object):
     def __init__(self):
         # 链接mongoDB
