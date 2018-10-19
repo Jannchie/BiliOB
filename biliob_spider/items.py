@@ -9,6 +9,7 @@ import scrapy
 
 class BangumiItem(scrapy.Item):
     title = scrapy.Field()
+    tag = scrapy.Field()
     data = scrapy.Field()
 
 

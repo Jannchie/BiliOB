@@ -40,6 +40,7 @@ class DonghuaSpider(scrapy.spiders.Spider):
         title = response.xpath(
             '//*[@id="app"]/div[1]/div[2]/div/div[2]/div[1]/span[1]/text()'
         ).extract()[0]
+        tag = response.xpath('//span[@class="media-tag"]/text()').extract()
         data = {
             'danmaku': danmaku,
             'watch': watch,
@@ -48,6 +49,7 @@ class DonghuaSpider(scrapy.spiders.Spider):
             'datetime': datetime.datetime.now()
         }
         item = BangumiItem()
+        item['tag'] = tag
         item['title'] = title
         item['data'] = data
         yield item

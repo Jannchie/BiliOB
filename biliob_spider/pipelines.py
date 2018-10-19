@@ -59,6 +59,7 @@ class BangumiPipeLine(object):
                 "title": item['title']
             }, {
                 "$set": {
+                    'tag':item['tag'],
                     "title": item['title'],
                 },
                 "$addToSet": {
@@ -86,6 +87,7 @@ class DonghuaPipeLine(object):
                 "title": item['title']
             }, {
                 "$set": {
+                    'tag':item['tag'],
                     "title": item['title'],
                 },
                 "$addToSet": {
