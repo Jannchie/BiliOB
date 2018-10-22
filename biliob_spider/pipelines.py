@@ -34,8 +34,11 @@ class VideoPipeline(object):
                     "datetime": datetime.datetime.fromtimestamp(
                         item['datetime'])
                 },
-                "$addToSet": {
-                    'data': item['data']
+                "$push": {
+                    'data': {
+                        '$each':[item['data']],
+                        '$position':0
+                    }
                 }
             }, True)
             return item
@@ -121,8 +124,11 @@ class AuthorPipeline(object):
                     "level": item['level'],
                     "sex": item['sex'],
                 },
-                "$addToSet": {
-                    'data': item['data']
+                "$push": {
+                    'data': {
+                        '$each':[item['data']],
+                        '$position':0
+                    }
                 }
             }, True)
             return item
@@ -177,7 +183,8 @@ class VideoAddPipeline(object):
                 "aid": item["aid"]
             }, {
                 "$set": {
-                    "aid": item['aid']
+                    'aid': item['aid'],
+                    'focus': True
                 },
             }, True)
             return item
