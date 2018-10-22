@@ -124,16 +124,14 @@ class VideoSpider(scrapy.spiders.Spider):
 
     def start_requests(self):
         # 只需要aid
-        c = self.coll.find({}, {'aid': 1})
+        c = self.coll.find({'focus':True}, {'aid': 1})
 
         x = 0
 
         aid_list = []
         for each_doc in c:
-
             print(x)
             x = x + 1
-
             aid_list.append(each_doc['aid'])
         i = 0
         while aid_list != []:
@@ -143,14 +141,12 @@ class VideoSpider(scrapy.spiders.Spider):
             i = i + 1
             if i == 100 or aid_list == []:
                 i = 0
-                print('yield')
                 yield Request(
                     "https://api.bilibili.com/x/article/archives?ids=" +
                     aid_str.rstrip(','))
 
     def parse(self, response):
         try:
-            print('parse')
             r = json.loads(response.body)
             d = r["data"]
             keys = list(d.keys())

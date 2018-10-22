@@ -33,6 +33,7 @@ class AuthorItem(scrapy.Item):
     sex = scrapy.Field()
     data = scrapy.Field()
     level = scrapy.Field()
+    focus = scrapy.Field()
 
 class VideoOnline(scrapy.Item):
     title = scrapy.Field()

@@ -58,6 +58,7 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         item['face'] = face
         item['official'] = official
         item['sex'] = sex
+        item['focus'] = True
         item['level'] = int(level)
         item['data'] = {
             'fans': int(fans),
