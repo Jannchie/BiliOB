@@ -130,7 +130,6 @@ class VideoSpider(scrapy.spiders.Spider):
 
         aid_list = []
         for each_doc in c:
-            print(x)
             x = x + 1
             aid_list.append(each_doc['aid'])
         i = 0
