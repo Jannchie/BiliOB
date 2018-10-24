@@ -20,7 +20,7 @@ class AuthorAnalyzer(object):
         count_delete = 0
         count_unfocus = 0
         count_focus = 0
-        for each_doc in self.coll.find():
+        for each_doc in self.coll.find({'focus':True}):
             live_time = 0
             delete = False
             focus = True
@@ -55,14 +55,14 @@ class AuthorAnalyzer(object):
                         delete = False
                 if delete:
                     count_delete += 1
-                    print("! 删除追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data']-1)]['view']))
+                    print("! 删除追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data'])-1]['view']))
                     self.coll.delete_one({'aid':each_doc['aid']})
                 elif focus:
                     count_focus += 1
-                    print("√ 持续追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data']-1)]['view']))
+                    print("√ 持续追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data'])-1]['view']))
                 else:
                     count_unfocus += 1
-                    print("× 不再追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data']-1)]['view']))
+                    print("× 不再追踪："+each_doc['title']+' 当前播放：'+str(each_doc['data'][len(each_doc['data'])-1]['view']))
                     self.coll.update_one({'aid':each_doc['aid']},{'$set':{'focus':False}})
                 pre_view = -1
                 c_view = -1

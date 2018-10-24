@@ -123,6 +123,7 @@ class AuthorPipeline(object):
                     "official": item['official'],
                     "level": item['level'],
                     "sex": item['sex'],
+                    "focus":True
                 },
                 "$push": {
                     'data': {
