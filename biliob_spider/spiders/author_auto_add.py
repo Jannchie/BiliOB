@@ -53,18 +53,20 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         article = j['data']['article_count']
         face = j['data']['card']['face']
         item = AuthorItem()
-        item['mid'] = int(mid)
-        item['name'] = name
-        item['face'] = face
-        item['official'] = official
-        item['sex'] = sex
-        item['focus'] = True
-        item['level'] = int(level)
-        item['data'] = {
-            'fans': int(fans),
-            'attention': int(attention),
-            'archive': int(archive),
-            'article': int(article),
-            'datetime': datetime.datetime.now()
-        }
-        yield item
+        # 粉丝数大于1000才加入
+        if int(fans) > 1000:
+            item['mid'] = int(mid)
+            item['name'] = name
+            item['face'] = face
+            item['official'] = official
+            item['sex'] = sex
+            item['focus'] = True
+            item['level'] = int(level)
+            item['data'] = {
+                'fans': int(fans),
+                'attention': int(attention),
+                'archive': int(archive),
+                'article': int(article),
+                'datetime': datetime.datetime.now()
+            }
+            yield item

@@ -19,8 +19,9 @@ class AuthorAnalyzer(object):
         c_date = datetime
         count_unfocus = 0
         count_focus = 0
-        for each_doc in self.coll.find():
+        for each_doc in self.coll.find({'focus':True}):
             flag_cool = 0
+            each_doc['data'].reverse()
             for each_data in each_doc['data']:
                 if pre_fans == -1:
                     pre_fans = each_data['fans']
@@ -67,5 +68,6 @@ class AuthorAnalyzer(object):
     
     def fans_variation(self):
         pass
+
 author_analyzer = AuthorAnalyzer()
 author_analyzer.focus_filter()
