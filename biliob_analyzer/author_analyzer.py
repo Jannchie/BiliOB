@@ -11,7 +11,7 @@ class AuthorAnalyzer(object):
                                         settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
-    def focus_filter(self):
+    def author_filter(self):
         pre_fans = -1
         c_fans = -1
         delta = timedelta(1)
@@ -69,5 +69,3 @@ class AuthorAnalyzer(object):
     def fans_variation(self):
         pass
 
-author_analyzer = AuthorAnalyzer()
-author_analyzer.focus_filter()

@@ -2,7 +2,7 @@ from db import settings
 from pymongo import MongoClient 
 from datetime import datetime
 from datetime import timedelta
-class AuthorAnalyzer(object):
+class VideoAnalyzer(object):
     def __init__(self):
         # 链接mongoDB
         self.client = MongoClient(settings['MINGO_HOST'], 27017)
@@ -11,7 +11,7 @@ class AuthorAnalyzer(object):
                                         settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
-    def video_cleaner(self):
+    def video_filter(self):
         pre_view = -1
         c_view = -1
         delta = timedelta(1)
@@ -71,5 +71,3 @@ class AuthorAnalyzer(object):
         print("× 不再追踪总数："+str(count_unfocus))
         print("√ 持续追踪总数："+str(count_focus))
     
-author_analyzer = AuthorAnalyzer()
-author_analyzer.video_cleaner()
