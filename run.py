@@ -25,6 +25,9 @@ fh.setFormatter(formatter)
 # 第四步，将logger添加到handler里面
 logger.addHandler(fh)
 
+def site():
+    Popen(["scrapy","crawl","site"])
+
 def bangumi():
     Popen(["scrapy","crawl","bangumi"])
 
@@ -61,6 +64,7 @@ schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
 schedule.every().day.at('16:30').do(run_threaded,bangumi)
 schedule.every().day.at('16:30').do(run_threaded,donghua)
+schedule.every().hour.do(run_threaded,site)
 schedule.every().minute.do(run_threaded,online)
 
 
