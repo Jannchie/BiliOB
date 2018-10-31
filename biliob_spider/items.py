@@ -46,6 +46,7 @@ class VideoOnline(scrapy.Item):
     aid = scrapy.Field()
     subChannel = scrapy.Field()
     channel = scrapy.Field()
+    
 class VideoWatcherItem(scrapy.Item):
     mid = scrapy.Field()
     aid = scrapy.Field()
