@@ -124,7 +124,7 @@ class VideoSpider(scrapy.spiders.Spider):
 
     def start_requests(self):
         # 只需要aid
-        c = self.coll.find({'focus':True}, {'aid': 1})
+        c = self.coll.find({'$or':[{'focus':True},{'forceFocus':True}]}, {'aid': 1})
 
         x = 0
 
