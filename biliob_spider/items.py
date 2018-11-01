@@ -13,6 +13,12 @@ class SiteItem(scrapy.Item):
     web_online = scrapy.Field()
     play_online = scrapy.Field()
 
+class TagItem(scrapy.Item):
+    tag_id = scrapy.Field()
+    tag_name = scrapy.Field()
+    use = scrapy.Field()
+    atten = scrapy.Field()
+    ctime = scrapy.Field()
 class BangumiItem(scrapy.Item):
     title = scrapy.Field()
     tag = scrapy.Field()
