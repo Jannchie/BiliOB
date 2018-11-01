@@ -32,7 +32,7 @@ class VideoWatch(scrapy.spiders.Spider):
         self.coll = self.db['author']  # 获得collection的句柄
 
     def start_requests(self):
-        c = self.coll.find({'focus':True}, {'mid': 1})
+        c = self.coll.find({'$or':[{'focus':True},{'forceFocus':True}]}, {'mid': 1})
         for each_doc in c:
             yield Request(
                 'http://space.bilibili.com/ajax/member/getSubmitVideos?mid=' +
