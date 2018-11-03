@@ -20,7 +20,7 @@ class TagSpider(scrapy.spiders.Spider):
         'DOWNLOAD_DELAY': 1
     }
     def start_requests(self):
-        for i in range(1000,9999999):
+        for i in range(0,9999999):
             url = 'https://api.bilibili.com/x/tag/info?tag_id={tag_id}'.format(tag_id=i)
             yield Request(url)
     def parse(self, response):
@@ -32,7 +32,7 @@ class TagSpider(scrapy.spiders.Spider):
             item['tag_name'] = d['tag_name']
             item['ctime'] = d['ctime']
             item['use'] = d['count']['use']
-            item['atten'] = d['atten']['atten']
+            item['atten'] = d['count']['atten']
             yield item
 
         except Exception as error:
