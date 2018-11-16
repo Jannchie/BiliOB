@@ -19,7 +19,7 @@ class AuthorAnalyzer(object):
         c_date = datetime
         count_unfocus = 0
         count_focus = 0
-        for each_doc in self.coll.find():
+        for each_doc in self.coll.find({'focus':True}):
             flag_cool = 0
             if 'data' in each_doc:
                 each_doc['data'].reverse()
