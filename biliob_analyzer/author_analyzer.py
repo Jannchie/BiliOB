@@ -32,13 +32,12 @@ class AuthorAnalyzer(object):
                     c_date = each_data['datetime']
                     if pre_date + delta > c_date:
                         continue
-                    rate = (c_fans-pre_fans)/((c_date-pre_date).seconds*60*60*24+1)
-                    pre_fans = c_fans
-                    pre_date = c_date
-                    if abs(rate) < 100:
+                    if abs(c_fans-pre_fans) < 100:
                         flag_cool += 1
                     else:
                         flag_cool = 0
+                    pre_fans = c_fans
+                    pre_date = c_date
 
                     # 连续30日日均涨粉小于100且粉丝数小于100000则不追踪
                     if flag_cool > 30 and each_data['fans'] < 100000:
