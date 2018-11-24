@@ -66,7 +66,7 @@ class AuthorUpdate(scrapy.spiders.Spider):
                 'article': int(article),
                 'datetime': datetime.datetime.now()
             }
-            yield Request("http://api.bilibili.com/x/space/upstat?mid={mid}".format(mid=str(mid)),meta={'item': item},method='GET',callback=self.parse_view)
+            yield Request("https://api.bilibili.com/x/space/upstat?mid={mid}".format(mid=str(mid)),meta={'item': item},method='GET',callback=self.parse_view)
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error("视频爬虫在解析时发生错误")
