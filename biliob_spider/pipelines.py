@@ -234,14 +234,15 @@ class VideoAddPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            self.coll.update_one({
-                "aid": item["aid"]
-            }, {
-                "$set": {
-                    'aid': item['aid'],
-                    'focus': True
-                },
-            }, True)
+            for each_aid in item["aid"]:
+                self.coll.update_one({
+                    "aid": each_aid
+                }, {
+                    "$set": {
+                        'aid': each_aid,
+                        'focus': True
+                    },
+                }, True)
             return item
         except Exception as error:
             # 出现错误时打印错误日志

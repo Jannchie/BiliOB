@@ -11,8 +11,8 @@
 
 import random
 
-# LOG_FILE = "biliob_spider.log"
-# LOG_LEVEL = "ERROR"
+LOG_FILE = "biliob_spider.log"
+LOG_LEVEL = "INFO"
 
 BOT_NAME = 'biliob_spider'
 

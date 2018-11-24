@@ -109,8 +109,7 @@ class VideoSpider(scrapy.spiders.Spider):
     custom_settings = {
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.VideoPipeline': 300,
-        },
-        'DOWNLOAD_DELAY': 1
+        }
     }
 
     def __init__(self):
