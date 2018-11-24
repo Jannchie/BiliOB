@@ -19,7 +19,7 @@ class VideoWatch(scrapy.spiders.Spider):
             'biliob_spider.pipelines.VideoAddPipeline': 300,
             'biliob_spider.pipelines.AuthorChannelPipeline': 301
         },
-        'DOWNLOAD_DELAY': 1
+        # 'DOWNLOAD_DELAY': 0.5
     }
 
     def __init__(self):
@@ -35,8 +35,8 @@ class VideoWatch(scrapy.spiders.Spider):
         c = self.coll.find({'$or':[{'focus':True},{'forceFocus':True}]}, {'mid': 1})
         for each_doc in c:
             yield Request(
-                'http://space.bilibili.com/ajax/member/getSubmitVideos?mid=' +
-                str(each_doc['mid']) + '&pagesize=1&page=1&order=pubdate',
+                'https://space.bilibili.com/ajax/member/getSubmitVideos?mid=' +
+                str(each_doc['mid']) + '&pagesize=10&page=1&order=pubdate',
                 method='GET')
 
     def parse(self, response):
@@ -48,10 +48,12 @@ class VideoWatch(scrapy.spiders.Spider):
             list_channel = []
             for each_channel in channels:
                 list_channel.append(channels[each_channel])
-            aid = j['data']['vlist'][0]['aid']
-            mid = j['data']['vlist'][0]['mid']
+            aid = []
+            for each in j['data']['vlist']:
+                aid.append(int(each['aid']))
+                mid = each['mid']
             item = VideoWatcherItem()
-            item['aid'] = int(aid)
+            item['aid'] = aid
             item['channels'] = list_channel
             item['mid'] = mid
             yield item
