@@ -44,6 +44,15 @@ class AuthorItem(scrapy.Item):
     data = scrapy.Field()
     level = scrapy.Field()
     focus = scrapy.Field()
+    pts = scrapy.Field()
+
+class RankItem(scrapy.Item):
+    title = scrapy.Field()
+    author = scrapy.Field()
+    aid = scrapy.Field()
+    pts = scrapy.Field()
+    mid = scrapy.Field()
+    channel = scrapy.Field()
 
 class VideoOnline(scrapy.Item):
     title = scrapy.Field()
