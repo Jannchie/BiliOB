@@ -53,7 +53,7 @@ def data_analyze():
     Popen(['python','run_analyzer.py'])
 
 def bili_monthly_rank():
-    Popen(['python','crawl','biliMonthlyRank'])
+    Popen(['scrapy','crawl','biliMonthlyRank'])
 
 
 def run_threaded(job_func):
@@ -65,7 +65,7 @@ schedule.every().day.at('12:00').do(run_threaded,data_analyze)
 schedule.every().day.at('01:00').do(run_threaded,update_author)
 schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
-schedule.every().day.at('16:30').do(run_threaded,bangumi)
+schedule.every().day.at('16:50').do(run_threaded,bangumi)
 schedule.every().day.at('16:30').do(run_threaded,donghua)
 schedule.every().day.at('22:00').do(run_threaded,video_watcher)
 schedule.every().day.at('21:00').do(run_threaded,bili_monthly_rank)
