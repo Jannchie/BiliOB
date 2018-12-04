@@ -62,11 +62,16 @@ class BangumiPipeLine(object):
                 'title': item['title']
             }, {
                 '$set': {
-                    'tag':item['tag'],
                     'title': item['title'],
+                    'cover': item['cover'],
+                    'isFinish': item['is_finish'],
+                    'isStarted': item['is_started'],
+                    'newest': item['newest_ep_index'],
                     'currentPts': item['data']['pts'],
                     'currentPlay': item['data']['play'],
+                    'squareCover': item['square_cover'],
                     'currentWatch': item['data']['watch'],
+                    'currentReview': item['data']['review'],
                     'currentDanmaku': item['data']['danmaku']
                 },
                 '$addToSet': {
@@ -94,11 +99,16 @@ class DonghuaPipeLine(object):
                 'title': item['title']
             }, {
                 '$set': {
-                    'tag':item['tag'],
                     'title': item['title'],
+                    'cover': item['cover'],
+                    'isFinish': item['is_finish'],
+                    'isStarted': item['is_started'],
+                    'newest': item['newest_ep_index'],
                     'currentPts': item['data']['pts'],
                     'currentPlay': item['data']['play'],
+                    'squareCover': item['square_cover'],
                     'currentWatch': item['data']['watch'],
+                    'currentReview': item['data']['review'],
                     'currentDanmaku': item['data']['danmaku']
                 },
                 '$addToSet': {
