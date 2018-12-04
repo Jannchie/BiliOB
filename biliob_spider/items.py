@@ -22,6 +22,11 @@ class TagItem(scrapy.Item):
 class BangumiItem(scrapy.Item):
     title = scrapy.Field()
     tag = scrapy.Field()
+    cover = scrapy.Field()
+    square_cover = scrapy.Field()
+    is_finish = scrapy.Field()
+    is_started = scrapy.Field()
+    newest_ep_index = scrapy.Field()
     data = scrapy.Field()
 
 class VideoItem(scrapy.Item):

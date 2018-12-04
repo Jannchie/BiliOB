@@ -4,6 +4,7 @@ from scrapy.http import Request
 from biliob_spider.items import BangumiItem
 import time
 import datetime
+import json
 
 
 class BangumiSpider(scrapy.spiders.Spider):
@@ -17,39 +18,21 @@ class BangumiSpider(scrapy.spiders.Spider):
     }
 
     def parse(self, response):
-        detail_href = response.xpath("//div[@class='img']/a/@href").extract()
-
-        pts = response.xpath("//div[@class='pts']/div/text()").extract()
-        for (each_href, each_pts) in zip(detail_href, pts):
-            yield Request(
-                "https:" + each_href,
-                meta={'pts': each_pts},
-                callback=self.detail_parse)
-
-    def detail_parse(self, response):
-        pts = response.meta['pts']
-        play = response.xpath(
-            '//*[@id="app"]/div[1]/div[2]/div/div[2]/div[2]/div[1]/span[1]/em/text()'
-        ).extract()[0]
-        watch = response.xpath(
-            '//*[@id="app"]/div[1]/div[2]/div/div[2]/div[2]/div[1]/span[2]/em/text()'
-        ).extract()[0]
-        danmaku = response.xpath(
-            '//*[@id="app"]/div[1]/div[2]/div/div[2]/div[2]/div[1]/span[3]/em/text()'
-        ).extract()[0]
-        title = response.xpath(
-            '//*[@id="app"]/div[1]/div[2]/div/div[2]/div[1]/span[1]/text()'
-        ).extract()[0]
-        tag = response.xpath('//span[@class="media-tag"]/text()').extract()
-        data = {
-            'danmaku': danmaku,
-            'watch': watch,
-            'play': play,
-            'pts': int(pts),
-            'datetime': datetime.datetime.now()
-        }
-        item = BangumiItem()
-        item['tag'] = tag
-        item['title'] = title
-        item['data'] = data
-        yield item
+        j = json.loads(response.xpath("//script[3]/text()").extract()[0][len('window.__INITIAL_STATE__='):].split(';')[0])
+        for each in j['rankList']:
+            item = BangumiItem()
+            item['title'] = each['title']
+            item['cover'] = each['cover']
+            item['square_cover'] = each['square_cover']
+            item['is_finish'] = each['is_finish']
+            item['is_started'] = each['is_started']
+            item['newest_ep_index'] = each['newest_ep_index']
+            item['data'] = {
+                'danmaku': each['dm_count'],
+                'watch': each['fav'],
+                'play': each['play'],
+                'pts': each['pts'],
+                'review': each['video_review'],
+                'datetime': datetime.datetime.now()
+            }
+            yield item
