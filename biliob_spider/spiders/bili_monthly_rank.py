@@ -13,7 +13,6 @@ class BiliMonthlyRankSpider(scrapy.spiders.Spider):
     name = "biliMonthlyRank"
     allowed_domains = ["bilibili.com"]
     start_urls = [
-        'https://www.bilibili.com/ranking/all/0/0/30',
         'https://www.bilibili.com/ranking/all/1/0/30',
         'https://www.bilibili.com/ranking/all/168/0/30',
         'https://www.bilibili.com/ranking/all/3/0/30',
