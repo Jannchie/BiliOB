@@ -64,6 +64,10 @@ class BangumiPipeLine(object):
                 '$set': {
                     'tag':item['tag'],
                     'title': item['title'],
+                    'currentPts': item['data']['pts'],
+                    'currentPlay': item['data']['play'],
+                    'currentWatch': item['data']['watch'],
+                    'currentDanmaku': item['data']['danmaku']
                 },
                 '$addToSet': {
                     'data': item['data']
@@ -92,6 +96,10 @@ class DonghuaPipeLine(object):
                 '$set': {
                     'tag':item['tag'],
                     'title': item['title'],
+                    'currentPts': item['data']['pts'],
+                    'currentPlay': item['data']['play'],
+                    'currentWatch': item['data']['watch'],
+                    'currentDanmaku': item['data']['danmaku']
                 },
                 '$addToSet': {
                     'data': item['data']
