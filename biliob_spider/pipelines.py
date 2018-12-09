@@ -25,6 +25,14 @@ class VideoPipeline(object):
                 'aid': int(item['aid'])
             }, {
                 '$set': {
+                    'c_view':item['current_view'],
+                    'c_favorite':item['current_favorite'],
+                    'c_danmaku':item['current_danmaku'] ,
+                    'c_coin':item['current_coin'],
+                    'c_share':item['current_share'] ,
+                    'c_like':item['current_like'],
+                    'c_dislike':item['current_dislike'],
+                    'c_datetime':item['current_datetime'],
                     'author': item['author'],
                     'subChannel': item['subChannel'],
                     'channel': item['channel'],
@@ -164,7 +172,13 @@ class AuthorPipeline(object):
                     'official': item['official'],
                     'level': item['level'],
                     'sex': item['sex'],
-                    'focus':True
+                    'focus':True,
+                    'c_fans':item['c_fans'],
+                    'c_attention':item['c_attention'] ,
+                    'c_archive':item['c_archive'] ,
+                    'c_article':item['c_article'] ,
+                    'c_archive_view':item['c_archive_view'],
+                    'c_article_view':item['c_article_view'], 
                 },
                 '$push': {
                     'data': {
