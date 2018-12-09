@@ -39,6 +39,14 @@ class VideoItem(scrapy.Item):
     title = scrapy.Field()
     mid = scrapy.Field()
     pic = scrapy.Field()
+    current_view = scrapy.Field()
+    current_favorite = scrapy.Field()
+    current_danmaku = scrapy.Field()
+    current_coin = scrapy.Field()
+    current_share = scrapy.Field()
+    current_like = scrapy.Field()
+    current_dislike = scrapy.Field()
+    current_datetime = scrapy.Field()
 
 class AuthorItem(scrapy.Item):
     mid = scrapy.Field()
@@ -50,6 +58,13 @@ class AuthorItem(scrapy.Item):
     level = scrapy.Field()
     focus = scrapy.Field()
     pts = scrapy.Field()
+    c_fans = scrapy.Field()
+    c_attention = scrapy.Field()
+    c_archive = scrapy.Field()
+    c_article = scrapy.Field()
+    c_archive_view = scrapy.Field()
+    c_article_view = scrapy.Field()
+    c_datetime = scrapy.Field()
 
 class RankItem(scrapy.Item):
     title = scrapy.Field()

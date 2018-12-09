@@ -160,17 +160,18 @@ class VideoSpider(scrapy.spiders.Spider):
                 share = d[each_key]['stat']['share']
                 like = d[each_key]['stat']['like']
                 dislike = d[each_key]['stat']['dislike']
-
+                current_date = datetime.now()
                 data = {
-                    'view': int(view),
-                    'favorite': int(favorite),
-                    'danmaku': int(danmaku),
-                    'coin': int(coin),
-                    'share': int(share),
-                    'like': int(like),
-                    'dislike': int(dislike),
-                    'datetime': datetime.now()
+                    'view': view,
+                    'favorite': favorite,
+                    'danmaku': danmaku,
+                    'coin': coin,
+                    'share': share,
+                    'like': like,
+                    'dislike': dislike,
+                    'datetime': current_date
                 }
+
 
                 subChannel = d[each_key]['tname']
                 title = d[each_key]['title']
@@ -178,6 +179,14 @@ class VideoSpider(scrapy.spiders.Spider):
                 tid = d[each_key]['tid']
                 pic = d[each_key]['pic']
                 item = VideoItem()
+                item['current_view'] = view
+                item['current_favorite'] = favorite
+                item['current_danmaku'] = danmaku
+                item['current_coin'] = coin
+                item['current_share'] = share
+                item['current_like'] = like
+                item['current_dislike'] = dislike 
+                item['current_datetime'] = current_date
                 item['aid'] = aid
                 item['mid'] = mid
                 item['pic'] = pic
