@@ -61,7 +61,6 @@ def run_threaded(job_func):
      job_thread.start()
 
 schedule.every().day.at('12:00').do(run_threaded,data_analyze)
-
 schedule.every().day.at('01:00').do(run_threaded,update_author)
 schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
