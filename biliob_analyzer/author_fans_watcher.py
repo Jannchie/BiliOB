@@ -40,7 +40,10 @@ class Event(Enum):
     decrease_2 = 'II级锐减'
     decrease_3 = 'III级暴减'
 
-
+last_datetime = datetime.datetime(2000,1,1)
+if monitor.count() != 0:
+    last_datetime = next(monitor.find().sort([('datetime',-1)]).limit(1))['datetime']
+    
 for each_author in coll.find().batch_size(8):
     if 'fansRate' in each_author and len(each_author['fansRate']) > 1:
         index = 1
@@ -54,20 +57,18 @@ for each_author in coll.find().batch_size(8):
         def insert_event(event_type):
             videos = video.find({'mid':each_author['mid']})
             temp_video = {}
-            cause = {}
+            cause = {'type':'video'}
             for each_v in videos:
-                if abs(each_v['datetime'] - each_author['fansRate'][c_index]['datetime']).days <= 1:
-                    if 'cView' not in temp_video or each_v['cView'] > temp_video['cView']:
-                        temp_video['aid'] = each_v['aid']
-                        temp_video['title'] = each_v['title']
-                        temp_video['cView'] = each_v['cView']
-                cause = {
-                    'type': 'video',
-                    'aid': temp_video['aid'],
-                    'title': temp_video['title'],
-                    'cView': temp_video['cView']
-                }
-                
+                # 相差一日之内
+                if (each_author['fansRate'][c_index]['datetime'] - each_v['datetime']).days <= 1:
+                    temp_video['aid'] = each_v['aid']
+                    temp_video['title'] = each_v['title']
+                    temp_video['cView'] = each_v['data'][0]['view']
+                    if 'cView' not in temp_video  or 'aid' not in cause or temp_video['cView'] > cause['cView']:
+                        cause['aid'] = temp_video['aid']
+                        cause['title'] = temp_video['title']
+                        cause['cView'] = temp_video['cView']
+
             monitor.insert_one({
                 'type':
                 event_type.value,
@@ -83,6 +84,9 @@ for each_author in coll.find().batch_size(8):
             })
 
         while index < len(each_author['fansRate']):
+            c_datetime = each_author['fansRate'][index]['datetime']
+            if c_datetime <= last_datetime:
+                break
             # 涨粉超高
             c_index = index - 1
             if each_author['fansRate'][c_index][
