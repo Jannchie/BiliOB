@@ -3,7 +3,7 @@ from db import db
 import datetime
 from enum import Enum
 coll = db['author']  # 获得collection的句柄
-monitor = db['monitor']  # 获得collection的句柄
+event = db['event']  # 获得collection的句柄
 video = db['video']  # 获得collection的句柄
 
 # 对于上升趋势的UP主，较上日增加多少倍，才算是巨量涨粉
@@ -41,8 +41,8 @@ class Event(Enum):
     decrease_3 = 'III级暴减'
 
 last_datetime = datetime.datetime(2000,1,1)
-if monitor.count() != 0:
-    last_datetime = next(monitor.find().sort([('datetime',-1)]).limit(1))['datetime']
+if event.count() != 0:
+    last_datetime = next(event.find().sort([('datetime',-1)]).limit(1))['datetime']
     
 for each_author in coll.find().batch_size(8):
     if 'fansRate' in each_author and len(each_author['fansRate']) > 1:
@@ -69,7 +69,7 @@ for each_author in coll.find().batch_size(8):
                         cause['title'] = temp_video['title']
                         cause['cView'] = temp_video['cView']
 
-            monitor.insert_one({
+            event.insert_one({
                 'type':
                 event_type.value,
                 'mid':
