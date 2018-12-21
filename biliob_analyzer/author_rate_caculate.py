@@ -89,11 +89,12 @@ for each_author in coll.find().batch_size(8):
             }
         }
     }, True)
-    coll.update_one({
-        'mid': each_author['mid']
-    }, {
-        '$set': {
-            'cRate': each_author['fansRate'][0]['rate']
-        }
-    }, True)
+    if len(each_author['fansRate'] != 0):
+        coll.update_one({
+            'mid': each_author['mid']
+        }, {
+            '$set': {
+                'cRate': each_author['fansRate'][0]['rate']
+            }
+        }, True)
     pass
