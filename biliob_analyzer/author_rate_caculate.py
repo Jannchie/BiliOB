@@ -60,14 +60,7 @@ for each_author in coll.find().batch_size(8):
         if (c_date - p_date).days == 1:
             delta_fans = c_fans - p_fans
             seconds = days + (c_datetime.second - p_datetime.second)
-            coll.update_one({
-                'mid': each_author['mid']
-            }, {'$push': {
-                'fansRate': {
-                    '$each': [{'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date}],
-                    '$position': 0
-                }
-            }}, True)
+            rate.append({'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date})
             i += 1
             c_fans, c_datetime, c_date = next_c(i)
             p_fans, p_datetime, p_date = next_p(i)
@@ -82,14 +75,25 @@ for each_author in coll.find().batch_size(8):
             t_date = c_date - datetime.timedelta(1)
             t_fans = c_fans - t_rate
             delta_fans = c_fans - t_fans
-            coll.update_one({
-                'mid': each_author['mid']
-            }, {'$push': {
-                'fansRate': {
-                    '$each': [{'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date}],
-                    '$position': 0
-                }
-            }}, True)
+            rate.append({'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date})
             c_fans = t_fans
             c_date = t_date
             days -= 1
+    coll.update_one({
+        'mid': each_author['mid']
+    }, {
+        '$push': {
+            'fansRate': {
+                '$each': rate,
+                '$position': 0
+            }
+        }
+    }, True)
+    coll.update_one({
+        'mid': each_author['mid']
+    }, {
+        '$set': {
+            'cRate': each_author['fansRate'][0]['rate']
+        }
+    }, True)
+    pass
