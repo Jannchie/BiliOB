@@ -8,7 +8,7 @@ for each_author in coll.find().batch_size(8):
     # 数据量小于等于2条
     if ('data' not in each_author or len(each_author['data']) < (i + 2)):
         continue
-    if ('fansRate' in each_author):
+    if ('fansRate' in each_author and len(each_author['fansRate']) >= 1):
         lastest_date = each_author['fansRate'][0]['datetime']
 
     def getDate(date):
@@ -89,7 +89,7 @@ for each_author in coll.find().batch_size(8):
             }
         }
     }, True)
-    if len(each_author['fansRate'])  != 0:
+    if 'fansRate' in each_author and  len(each_author['fansRate'])  != 0:
         coll.update_one({
             'mid': each_author['mid']
         }, {
