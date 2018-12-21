@@ -89,7 +89,7 @@ for each_author in coll.find().batch_size(8):
             }
         }
     }, True)
-    if len(each_author['fansRate'] != 0):
+    if len(each_author['fansRate'])  != 0:
         coll.update_one({
             'mid': each_author['mid']
         }, {
