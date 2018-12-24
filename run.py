@@ -7,24 +7,6 @@ from subprocess import Popen
 import logging
 import threading
 
-
-# 第一步，创建一个logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)  # Log等级总开关
-# 第二步，创建一个handler，用于写入日志文件
-rq = time.strftime('%Y%m%d%H%M', time.localtime(time.time()))
-log_path = './'
-log_name = log_path + rq + '.log'
-logfile = log_name
-fh = logging.FileHandler(logfile, mode='w')
-fh.setLevel(logging.DEBUG)  # 输出到file的log等级的开关
-# 第三步，定义handler的输出格式
-formatter = logging.Formatter(
-    "%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-fh.setFormatter(formatter)
-# 第四步，将logger添加到handler里面
-logger.addHandler(fh)
-
 def site():
     Popen(["scrapy","crawl","site"])
 
@@ -60,7 +42,7 @@ def run_threaded(job_func):
      job_thread = threading.Thread(target=job_func)
      job_thread.start()
 
-schedule.every().day.at('12:00').do(run_threaded,data_analyze)
+schedule.every().day.at('14:25').do(run_threaded,data_analyze)
 schedule.every().day.at('01:00').do(run_threaded,update_author)
 schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
