@@ -2,6 +2,7 @@ from db import settings
 from db import db
 import datetime
 coll = db['author']  # 获得collection的句柄
+print('开始计算粉丝增速')
 for each_author in coll.find().batch_size(8):
     rate = []
     i = 0

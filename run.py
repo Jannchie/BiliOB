@@ -32,6 +32,7 @@ def online():
     Popen(['scrapy','crawl','online'])
 
 def data_analyze():
+    print('执行data_analyzer')
     Popen(['python','run_analyzer.py'])
 
 def bili_monthly_rank():
@@ -42,7 +43,7 @@ def run_threaded(job_func):
      job_thread = threading.Thread(target=job_func)
      job_thread.start()
 
-schedule.every().day.at('14:25').do(run_threaded,data_analyze)
+schedule.every().day.at('11:40').do(run_threaded,data_analyze)
 schedule.every().day.at('01:00').do(run_threaded,update_author)
 schedule.every().day.at('07:00').do(run_threaded,video_spider)
 schedule.every().day.at('14:00').do(run_threaded,auto_add_author)
@@ -54,7 +55,7 @@ schedule.every().hour.do(run_threaded,site)
 schedule.every().minute.do(run_threaded,online)
 
 
-logging.info('开始运行计划任务..')
+print('开始运行计划任务..')
 while True:
     schedule.run_pending()
     time.sleep(60)
