@@ -41,6 +41,7 @@ class Event(Enum):
     decrease_3 = 'III级暴减'
 
 last_datetime = datetime.datetime(2000,1,1)
+print('开始捕捉事件')
 if event.count() != 0:
     last_datetime = next(event.find().sort([('datetime',-1)]).limit(1))['datetime']
     
