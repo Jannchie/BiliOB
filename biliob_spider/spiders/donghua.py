@@ -1,5 +1,6 @@
 #coding=utf-8
 import scrapy
+from scrapy.mail import MailSender
 from scrapy.http import Request
 from biliob_spider.items import BangumiItem
 import time

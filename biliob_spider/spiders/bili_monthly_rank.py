@@ -1,5 +1,6 @@
 #coding=utf-8
 import scrapy
+from scrapy.mail import MailSender
 from scrapy.http import Request
 from biliob_spider.items import RankItem
 import time
@@ -56,6 +57,8 @@ class BiliMonthlyRankSpider(scrapy.spiders.Spider):
                 yield item
         except Exception as error:
             # 出现错误时打印错误日志
+            mailer = MailSender()
+            mailer.send(to=["604264970@qq.com"], subject="BiliobSpiderError", body="{}{}{}".format(item,response.url,error))
             logging.error("视频爬虫在解析时发生错误")
             logging.error(response.url)
             logging.error(error)
