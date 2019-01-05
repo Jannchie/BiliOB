@@ -53,6 +53,7 @@ sub_channel_2_channel = {
     '桌游棋牌': '游戏',
     '欧美电影': '电影',
     '汽车': '科技',
+    '游戏': '游戏',
     '海外剧': '电视剧',
     '演奏': '音乐',
     '演讲·公开课': '科技',
@@ -108,13 +109,12 @@ sub_channel_2_channel = {
     '音乐综合': '音乐',
     'MV': '音乐',
     '音乐现场': '音乐',
-    '游戏': '游戏',
     'T台': '时尚',
 }
 
 
 class VideoSpider(scrapy.spiders.Spider):
-    name = "videoSpider"
+    name = "videoSpiderAll"
     allowed_domains = ["bilibili.com"]
     start_urls = []
     custom_settings = {
@@ -134,7 +134,7 @@ class VideoSpider(scrapy.spiders.Spider):
 
     def start_requests(self):
         # 只需要aid
-        c = self.coll.find({'$or':[{'focus':True},{'forceFocus':True}]}, {'aid': 1})
+        c = self.coll.find({}, {'aid': 1})
 
         x = 0
 
