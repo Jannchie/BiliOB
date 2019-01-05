@@ -28,11 +28,13 @@ def video_watcher():
 def video_spider():
     Popen(["scrapy","crawl","videoSpider"])
 
+def video_spider_all():
+    Popen(["scrapy","crawl","videoSpiderAll"])
+
 def online():
     Popen(['scrapy','crawl','online'])
 
 def data_analyze():
-    print('执行data_analyzer')
     Popen(['python','run_analyzer.py'])
 
 def bili_monthly_rank():
@@ -51,6 +53,7 @@ schedule.every().day.at('16:50').do(run_threaded,bangumi)
 schedule.every().day.at('16:30').do(run_threaded,donghua)
 schedule.every().day.at('22:00').do(run_threaded,video_watcher)
 schedule.every().day.at('21:00').do(run_threaded,bili_monthly_rank)
+schedule.every().week.do(run_threaded,video_spider_all)
 schedule.every().hour.do(run_threaded,site)
 schedule.every().minute.do(run_threaded,online)
 
