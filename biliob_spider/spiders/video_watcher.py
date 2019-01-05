@@ -19,7 +19,7 @@ class VideoWatch(scrapy.spiders.Spider):
             'biliob_spider.pipelines.VideoAddPipeline': 300,
             'biliob_spider.pipelines.AuthorChannelPipeline': 301
         },
-        # 'DOWNLOAD_DELAY': 0.5
+        'DOWNLOAD_DELAY': 0.5
     }
 
     def __init__(self):
