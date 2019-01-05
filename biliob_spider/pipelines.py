@@ -31,7 +31,6 @@ class VideoPipeline(object):
                     'cCoin':item['current_coin'],
                     'cShare':item['current_share'] ,
                     'cLike':item['current_like'],
-                    'cDislike':item['current_dislike'],
                     'cDatetime':item['current_datetime'],
                     'author': item['author'],
                     'subChannel': item['subChannel'],

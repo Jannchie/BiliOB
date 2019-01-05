@@ -171,7 +171,6 @@ class VideoSpider(scrapy.spiders.Spider):
                 coin = d[each_key]['stat']['coin']
                 share = d[each_key]['stat']['share']
                 like = d[each_key]['stat']['like']
-                dislike = d[each_key]['stat']['dislike']
                 current_date = datetime.now()
                 data = {
                     'view': view,
@@ -180,7 +179,6 @@ class VideoSpider(scrapy.spiders.Spider):
                     'coin': coin,
                     'share': share,
                     'like': like,
-                    'dislike': dislike,
                     'datetime': current_date
                 }
 
@@ -197,7 +195,6 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['current_coin'] = coin
                 item['current_share'] = share
                 item['current_like'] = like
-                item['current_dislike'] = dislike 
                 item['current_datetime'] = current_date
                 item['aid'] = aid
                 item['mid'] = mid

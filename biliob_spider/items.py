@@ -46,7 +46,6 @@ class VideoItem(scrapy.Item):
     current_coin = scrapy.Field()
     current_share = scrapy.Field()
     current_like = scrapy.Field()
-    current_dislike = scrapy.Field()
     current_datetime = scrapy.Field()
 
 class AuthorItem(scrapy.Item):
