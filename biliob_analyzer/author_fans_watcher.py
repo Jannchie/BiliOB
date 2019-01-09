@@ -23,9 +23,9 @@ AMAZING_DECREASE = 5
 
 # 对于下降趋势的UP主，较上日减少多少倍，才算是巨量掉粉
 WTF_DECREASE = 8
-
+ 
 # 粉丝增加多少，才算大量涨粉
-FANS_INCREASE_THRESHOLD = 10000
+FANS_INCREASE_THRESHOLD = 8000
 # 粉丝减少多少，算作大量掉粉
 FANS_DECREASE_THRESHOLD = -3000
 # 多少粉丝以上才关注掉粉
