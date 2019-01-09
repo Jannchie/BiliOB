@@ -41,13 +41,13 @@ class VideoAnalyzer(object):
                     rate = (c_view-pre_view)
                     pre_view = c_view
                     pre_date = c_date
-                    # 三天内播放增长小于3000则被认定为低质量
-                    if live_time == 3 and c_view < 3000:
-                        delete = True
-                        focus = False
-                        break
-                    # 大于三天后每日播放增长小于100则停止追踪
-                    elif live_time > 3 and rate < 100:
+                    # # 三天内播放增长小于3000则被认定为低质量
+                    # if live_time == 3 and c_view < 3000:
+                    #     delete = True
+                    #     focus = False
+                    #     break
+                    # 大于7天后每日播放增长小于100则停止追踪
+                    if live_time > 7 and rate < 100:
                         focus = False
                         delete = False
                         break
