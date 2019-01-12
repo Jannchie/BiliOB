@@ -23,13 +23,14 @@ AMAZING_DECREASE = 5
 
 # 对于下降趋势的UP主，较上日减少多少倍，才算是巨量掉粉
 WTF_DECREASE = 8
- 
+
 # 粉丝增加多少，才算大量涨粉
 FANS_INCREASE_THRESHOLD = 8000
 # 粉丝减少多少，算作大量掉粉
 FANS_DECREASE_THRESHOLD = -3000
 # 多少粉丝以上才关注掉粉
 WATCH_DECREASE = 1000
+
 
 class Event(Enum):
     increase_1 = 'I级增长'
@@ -40,11 +41,13 @@ class Event(Enum):
     decrease_2 = 'II级锐减'
     decrease_3 = 'III级暴减'
 
-last_datetime = datetime.datetime(2000,1,1)
+
+last_datetime = datetime.datetime(2000, 1, 1)
 print('开始捕捉事件')
 if event.count() != 0:
-    last_datetime = next(event.find().sort([('datetime',-1)]).limit(1))['datetime']
-    
+    last_datetime = next(event.find().sort([('datetime',
+                                             -1)]).limit(1))['datetime']
+
 for each_author in coll.find().batch_size(8):
     if 'fansRate' in each_author and len(each_author['fansRate']) > 1:
         index = 1
@@ -56,16 +59,18 @@ for each_author in coll.find().batch_size(8):
                 datetime=each_author['fansRate'][c_index]['datetime'])
 
         def insert_event(event_type):
-            videos = video.find({'mid':each_author['mid']})
+            videos = video.find({'mid': each_author['mid']})
             temp_video = {}
-            cause = {'type':'video'}
+            cause = {'type': 'video'}
             for each_v in videos:
                 # 相差一日之内
-                if (each_author['fansRate'][c_index]['datetime'] - each_v['datetime']).days <= 1:
+                if (each_author['fansRate'][c_index]['datetime'] -
+                        each_v['datetime']).days <= 1:
                     temp_video['aid'] = each_v['aid']
                     temp_video['title'] = each_v['title']
                     temp_video['cView'] = each_v['data'][0]['view']
-                    if 'cView' not in temp_video  or 'aid' not in cause or temp_video['cView'] > cause['cView']:
+                    if 'cView' not in temp_video or 'aid' not in cause or temp_video[
+                            'cView'] > cause['cView']:
                         cause['aid'] = temp_video['aid']
                         cause['title'] = temp_video['title']
                         cause['cView'] = temp_video['cView']
@@ -81,7 +86,8 @@ for each_author in coll.find().batch_size(8):
                 each_author['fansRate'][c_index]['rate'],
                 'datetime':
                 each_author['fansRate'][c_index]['datetime'],
-                'cause': cause
+                'cause':
+                cause
             })
 
         while index < len(each_author['fansRate']):
@@ -120,9 +126,9 @@ for each_author in coll.find().batch_size(8):
             # 一掉再掉
             elif each_author['fansRate'][c_index][
                     'rate'] < FANS_DECREASE_THRESHOLD and abs(
-                        each_author['fansRate'][c_index]['rate']) > abs(
-                            each_author['fansRate'][index]
-                            ['rate']) * WTF_DECREASE:
+                        each_author['fansRate'][c_index]['rate']
+                    ) > abs(
+                        each_author['fansRate'][index]['rate']) * WTF_DECREASE:
                 insert_event(Event.decrease_3)
                 print(Event.decrease_3.value + print_data(each_author))
             # 一掉再掉

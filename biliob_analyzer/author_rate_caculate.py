@@ -13,15 +13,21 @@ for each_author in coll.find().batch_size(8):
         lastest_date = each_author['fansRate'][0]['datetime']
 
     def getDate(date):
-        return date - datetime.timedelta(hours=date.hour, seconds=date.second,microseconds=date.microsecond,minutes=date.minute)
+        return date - datetime.timedelta(
+            hours=date.hour,
+            seconds=date.second,
+            microseconds=date.microsecond,
+            minutes=date.minute)
 
     def next_c(i):
         return each_author['data'][i]['fans'], each_author['data'][i][
             'datetime'], each_author['data'][i][
                 'datetime'] - datetime.timedelta(
-                    hours=each_author['data'][i][
-                'datetime'].hour, seconds=each_author['data'][i][
-                'datetime'].second,microseconds=each_author['data'][i]['datetime'].microsecond,minutes=each_author['data'][i]['datetime'].minute)
+                    hours=each_author['data'][i]['datetime'].hour,
+                    seconds=each_author['data'][i]['datetime'].second,
+                    microseconds=each_author['data'][i]['datetime'].
+                    microsecond,
+                    minutes=each_author['data'][i]['datetime'].minute)
 
     c_fans, c_datetime, c_date = next_c(i)
 
@@ -36,7 +42,6 @@ for each_author in coll.find().batch_size(8):
                     minutes=each_author['data'][i + 1]['datetime'].minute)
 
     p_fans, p_datetime, p_date = next_p(i)
-
 
     # 相差粉丝数
     delta_fans = c_fans - p_fans
@@ -61,7 +66,12 @@ for each_author in coll.find().batch_size(8):
         if (c_date - p_date).days == 1:
             delta_fans = c_fans - p_fans
             seconds = days + (c_datetime.second - p_datetime.second)
-            rate.append({'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date})
+            rate.append({
+                'rate':
+                int(delta_fans / (1 + seconds / (60 * 60 * 24))),
+                'datetime':
+                c_date
+            })
             i += 1
             c_fans, c_datetime, c_date = next_c(i)
             p_fans, p_datetime, p_date = next_p(i)
@@ -72,30 +82,31 @@ for each_author in coll.find().batch_size(8):
         # 相差多天
         days = (c_date - p_date).days
         while days > 1:
-            t_rate = delta_fans/(days + seconds/(60*60*24))
+            t_rate = delta_fans / (days + seconds / (60 * 60 * 24))
             t_date = c_date - datetime.timedelta(1)
             t_fans = c_fans - t_rate
             delta_fans = c_fans - t_fans
-            rate.append({'rate':int(delta_fans/(1 + seconds/(60*60*24))),'datetime':c_date})
+            rate.append({
+                'rate':
+                int(delta_fans / (1 + seconds / (60 * 60 * 24))),
+                'datetime':
+                c_date
+            })
             c_fans = t_fans
             c_date = t_date
             days -= 1
     coll.update_one({
         'mid': each_author['mid']
-    }, {
-        '$push': {
-            'fansRate': {
-                '$each': rate,
-                '$position': 0
-            }
+    }, {'$push': {
+        'fansRate': {
+            '$each': rate,
+            '$position': 0
         }
-    }, True)
-    if 'fansRate' in each_author and  len(each_author['fansRate'])  != 0:
+    }}, True)
+    if len(rate) != 0:
         coll.update_one({
             'mid': each_author['mid']
-        }, {
-            '$set': {
-                'cRate': each_author['fansRate'][0]['rate']
-            }
-        }, True)
+        }, {'$set': {
+            'cRate': rate[0]['rate']
+        }}, True)
     pass
