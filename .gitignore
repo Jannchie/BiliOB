@@ -4,3 +4,4 @@ db.py
 nohup.out
 biliob_spider.log
 debug.py
+mail.py

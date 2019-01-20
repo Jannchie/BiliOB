@@ -6,7 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/items.html
 
 import scrapy
-from scrapy.mail import MailSender
+from mail import mailer
 
 class SiteItem(scrapy.Item):
     region_count = scrapy.Field()
