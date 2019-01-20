@@ -1,15 +1,14 @@
 # coding=utf-8
 import scrapy
-from mail import mailer
 from scrapy.http import Request
 from biliob_spider.items import VideoItem
-from datetime import datetime
+import datetime
 import time
 import json
 import logging
 from pymongo import MongoClient
 from db import settings
-
+from mail import mailer
 sub_channel_2_channel = {
     'ASMR': '生活',
     'GMV': '游戏',
@@ -54,7 +53,6 @@ sub_channel_2_channel = {
     '桌游棋牌': '游戏',
     '欧美电影': '电影',
     '汽车': '科技',
-    '游戏': '游戏',
     '海外剧': '电视剧',
     '演奏': '音乐',
     '演讲·公开课': '科技',
@@ -104,24 +102,37 @@ sub_channel_2_channel = {
     '电脑装机': '数码',
     '影音智能': '数码',
     '摄影摄像': '数码',
+    '摄影摄像': '数码',
     '风尚标': '时尚',
     '电音': '音乐',
     '音乐综合': '音乐',
     'MV': '音乐',
     '音乐现场': '音乐',
+    '游戏': '游戏',
     'T台': '时尚',
 }
 
 
-class VideoSpider(scrapy.spiders.Spider):
-    name = "videoSpiderAll"
-    allowed_domains = ["bilibili.com"]
+class FromKan(scrapy.spiders.Spider):
+    name = "fromkan"
+    allowed_domains = ["kanbilibili.com"]
     start_urls = []
     custom_settings = {
         'ITEM_PIPELINES': {
-            'biliob_spider.pipelines.VideoPipeline': 300,
-        }
+            'biliob_spider.pipelines.VideoPipelineFromKan': 300,
+        },
+        'DOWNLOAD_DELAY': 0.5
     }
+
+    def dateRange(self, beginDate, endDate):
+        dates = []
+        dt = datetime.datetime.strptime(beginDate, "%Y%m%d")
+        date = beginDate[:]
+        while date <= endDate:
+            dates.append(date)
+            dt = dt + datetime.timedelta(1)
+            date = dt.strftime("%Y%m%d")
+        return dates
 
     def __init__(self):
         # 链接mongoDB
@@ -133,44 +144,32 @@ class VideoSpider(scrapy.spiders.Spider):
         self.coll = self.db['video']  # 获得collection的句柄
 
     def start_requests(self):
-        # 只需要aid
-        c = self.coll.find({}, {'aid': 1})
-
-        x = 0
-
-        aid_list = []
-        for each_doc in c:
-            x = x + 1
-            aid_list.append(each_doc['aid'])
-        i = 0
-        while aid_list != []:
-            if i == 0:
-                aid_str = ''
-            aid_str += str(aid_list.pop()) + ','
-            i = i + 1
-            if i == 100 or aid_list == []:
-                i = 0
-                yield Request(
-                    "https://api.bilibili.com/x/article/archives?ids=" +
-                    aid_str.rstrip(','))
+        dates = self.dateRange('20181001', '20190120')
+        for each in dates:
+            yield Request(
+                'https://www.kanbilibili.com/json/all/{}/0_play_0.json'.format(
+                    each),
+                meta={'date': each})
 
     def parse(self, response):
         try:
+            if response.status == 404:
+                return
             r = json.loads(response.body)
-            d = r["data"]
-            keys = list(d.keys())
-            for each_key in keys:
+            for each in r:
+                aid = each['aid']
+                author = each['name']
+                mid = each['mid']
+                view = each['playTotal']
+                favorite = each['favoritesTotal']
+                danmaku = each['danmakuTotal']
+                coin = None
+                share = None
+                like = None
+                date = response.meta['date']
+                date_str = '{}-{}-{}'.format(date[:4], date[4:6], date[6:8])
+                current_date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
 
-                aid = d[each_key]['stat']['aid']
-                author = d[each_key]['owner']['name']
-                mid = d[each_key]['owner']['mid']
-                view = d[each_key]['stat']['view']
-                favorite = d[each_key]['stat']['favorite']
-                danmaku = d[each_key]['stat']['danmaku']
-                coin = d[each_key]['stat']['coin']
-                share = d[each_key]['stat']['share']
-                like = d[each_key]['stat']['like']
-                current_date = datetime.now()
                 data = {
                     'view': view,
                     'favorite': favorite,
@@ -181,12 +180,11 @@ class VideoSpider(scrapy.spiders.Spider):
                     'datetime': current_date
                 }
 
-
-                subChannel = d[each_key]['tname']
-                title = d[each_key]['title']
-                date = d[each_key]['pubdate']
-                tid = d[each_key]['tid']
-                pic = d[each_key]['pic']
+                subChannel = None
+                tid = None
+                title = each['title']
+                date = each['created']
+                pic = 'http:' + each['pic']
                 item = VideoItem()
                 item['current_view'] = view
                 item['current_favorite'] = favorite
@@ -203,24 +201,27 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['title'] = title
                 item['subChannel'] = subChannel
                 item['datetime'] = date
-
-                if subChannel != '':
-                    item['channel'] = sub_channel_2_channel[subChannel]
-                elif subChannel == '资讯':
-                    if tid == 51:
-                        item['channel'] == '番剧'
-                    if tid == 170:
-                        item['channel'] == '国创'
-                    if tid == 159:
-                        item['channel'] == '娱乐'
-                else:
-                    item['channel'] = None
-                yield item
+                if author == '腾讯动漫' or author == '哔哩哔哩番剧':
+                    continue
+                self.coll.find_one({'aid': aid})
+                d = self.coll.find_one({'aid': aid})
+                flag = 0
+                if d != None and 'data' in d:
+                    if 'subChannel' in d:
+                        item['subChannel'] = d['subChannel']
+                    if 'channel' in d:
+                        item['channel'] = d['channel']
+                    for each_data in d['data']:
+                        data_date = each_data['datetime'].strftime("%Y-%m-%d")
+                        if data_date == date_str:
+                            flag = 1
+                            break
+                if flag == 0:
+                    yield item
 
         except Exception as error:
             # 出现错误时打印错误日志
-            if r['code'] == -404:
-                return
+
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",

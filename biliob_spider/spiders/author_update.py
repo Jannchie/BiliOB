@@ -1,6 +1,6 @@
 #coding=utf-8
 import scrapy
-from scrapy.mail import MailSender
+from mail import mailer
 from scrapy.http import Request
 from biliob_spider.items import AuthorItem
 import time
@@ -85,8 +85,11 @@ class AuthorUpdate(scrapy.spiders.Spider):
                 callback=self.parse_view)
         except Exception as error:
             # 出现错误时打印错误日志
-            mailer = MailSender()
-            mailer.send(to=["604264970@qq.com"], subject="BiliobSpiderError", body="{}{}{}".format(item,response.url,error))
+            mailer.send(
+                to=["604264970@qq.com"],
+                subject="BiliobSpiderError",
+                body="{}\n{}\n{}".format(item, response.url, error),
+            )
             logging.error("视频爬虫在解析时发生错误")
             logging.error(response.url)
             logging.error(error)
