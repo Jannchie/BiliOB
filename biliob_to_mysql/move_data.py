@@ -1,7 +1,8 @@
 from db import cursor
 from db import db as mongodb
 from pymongo import ASCENDING
-
+import bson
+import datetime
 mongo_user = mongodb['user']
 mongo_video = mongodb['video']
 mongo_author = mongodb['author']
@@ -41,6 +42,12 @@ VALUES (%(user_id)s, %(author_id)s)
 """
 
 
+def translate_int64(item):
+    for each_key in item:
+        if type(item[each_key]) is bson.int64.Int64:
+            item[each_key] = int(item[each_key])
+
+
 def move_user():
     for each_doc in mongo_user.find().sort('_id', direction=ASCENDING):
         item = dict()
@@ -75,3 +82,59 @@ def move_user():
                 item['user_id'] = int(user_id)
                 item['author_id'] = int(each_mid)
                 cursor.execute(INSERT_USER_FOCUS_AUTHOR_SQL, item)
+
+
+# 视频相关
+
+INSERT_VIDEO_SQL = """
+INSERT INTO `video` (`video_id`, `author_id`, `title`, `pic`, `is_observe`, `gmt_create`, `channel`, `subchannel`, `pub_datetime`)
+VALUES (%(video_id)s, %(author_id)s, %(title)s, %(pic)s, %(is_observe)s, %(gen_time)s, %(channel)s, %(subchannel)s, %(pub_datetime)s)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `pic` = VALUES(`pic`), `is_observe` = VALUES(`is_observe`), `channel` = VALUES(`channel`), `subchannel` = VALUES(`subchannel`), `pub_datetime` = VALUES(`pub_datetime`);
+"""
+
+INSERT_VIDEO_RECORD_SQL = """
+INSERT INTO `video_record` (`video_id`, `view`, `danmaku`, `favorite`, `coin`, `share`, `like`, `dislike`, `gmt_create`)
+VALUES (%(video_id)s, %(view)s, %(danmaku)s, %(favorite)s, %(coin)s, %(share)s, %(like)s, %(dislike)s, %(gmt_create)s)
+ON DUPLICATE KEY UPDATE 
+`video_id` = VALUES(`video_id`), 
+`view` = VALUES(`view`), 
+`danmaku` = VALUES(`danmaku`), 
+`favorite` = VALUES(`favorite`), 
+`coin` = VALUES(`coin`), 
+`share` = VALUES(`share`);
+`like` = VALUES(`like`);
+`dislike` = VALUES(`dislike`);
+"""
+
+
+def move_video():
+    for each_doc in mongo_video.find().batch_size(8):
+        translate_int64(each_doc)
+        item = {}
+        item['video_id'] = each_doc['aid'] if 'aid' in each_doc else None
+        print(item['video_id'])
+        item['author_id'] = each_doc['mid'] if 'mid' in each_doc else None
+        item['title'] = each_doc['title'] if 'title' in each_doc else None
+        item['pic'] = each_doc['pic'] if 'pic' in each_doc else None
+        item['is_observe'] = each_doc['focus'] if 'focus' in each_doc else 1
+        item['channel'] = each_doc['channel'] if 'channel' in each_doc else None
+        item['subchannel'] = each_doc['subChannel'] if 'subChannel' in each_doc else None
+        item['gen_time'] = each_doc.pop('_id').generation_time
+        item['pub_datetime'] = each_doc['datetime'] if 'datetime' in each_doc else None
+        cursor.execute(INSERT_VIDEO_SQL, item)
+        if 'data' in each_doc:
+            item_list = []
+            for each_record in each_doc['data']:
+                translate_int64(each_record)
+                item = {}
+                item['video_id'] = each_doc['aid'] if 'aid' in each_doc else None
+                item['view'] = each_record['view'] if 'view' in each_record else None
+                item['danmaku'] = each_record['danmaku'] if 'danmaku' in each_record else None
+                item['favorite'] = each_record['favorite'] if 'favorite' in each_record else None
+                item['coin'] = each_record['coin'] if 'coin' in each_record else None
+                item['share'] = each_record['share'] if 'share' in each_record else None
+                item['like'] = each_record['like'] if 'like' in each_record else None
+                item['dislike'] = each_record['dislike'] if 'dislike' in each_record else None
+                item['gmt_create'] = each_record['datetime'] if 'datetime' in each_record else None
+                item_list.append(item)
+            cursor.executemany(INSERT_VIDEO_RECORD_SQL, item_list)
