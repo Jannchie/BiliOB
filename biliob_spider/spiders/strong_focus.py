@@ -2,13 +2,13 @@
 import scrapy
 from mail import mailer
 from scrapy.http import Request
-from biliob_spider.items import VideoItem
-from datetime import datetime
+from biliob_spider.items import VideoAndAuthorItem
 import time
 import json
 import logging
 from pymongo import MongoClient
-from db import settings
+import datetime
+
 sub_channel_2_channel = {
     'ASMR': '生活',
     'GMV': '游戏',
@@ -53,6 +53,7 @@ sub_channel_2_channel = {
     '桌游棋牌': '游戏',
     '欧美电影': '电影',
     '汽车': '科技',
+    '游戏': '游戏',
     '海外剧': '电视剧',
     '演奏': '音乐',
     '演讲·公开课': '科技',
@@ -102,57 +103,49 @@ sub_channel_2_channel = {
     '电脑装机': '数码',
     '影音智能': '数码',
     '摄影摄像': '数码',
-    '摄影摄像': '数码',
     '风尚标': '时尚',
     '电音': '音乐',
     '音乐综合': '音乐',
     'MV': '音乐',
     '音乐现场': '音乐',
-    '游戏': '游戏',
     'T台': '时尚',
 }
 
 
-class VideoSpider(scrapy.spiders.Spider):
-    name = "videoSpider"
+class StrongSpider(scrapy.spiders.Spider):
+    name = "strong"
     allowed_domains = ["bilibili.com"]
-    start_urls = []
+    start_urls = ['https://www.bilibili.com/video/online.html']
     custom_settings = {
         'ITEM_PIPELINES': {
-            'biliob_spider.pipelines.VideoPipeline': 300,
-        }
+            'biliob_spider.pipelines.StrongPipeline': 300
+        },
+        'DOWNLOAD_DELAY': 2
     }
 
-    def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
-        self.coll = self.db['video']  # 获得collection的句柄
-
-    def start_requests(self):
-        # 只需要aid
-        c = self.coll.find({'$or':[{'focus':True},{'forceFocus':True}]}, {'aid': 1})
-        x = 0
-        aid_list = []
-        for each_doc in c:
-            x = x + 1
-            aid_list.append(each_doc['aid'])
-        i = 0
-        while aid_list != []:
-            if i == 0:
-                aid_str = ''
-            aid_str += str(aid_list.pop()) + ','
-            i = i + 1
-            if i == 100 or aid_list == []:
-                i = 0
+    def parse(self, response):
+        try:
+            video_list = response.xpath('//*[@id="app"]/div[2]/div[2]/div')
+            # 为了爬取分区、粉丝数等数据，需要进入每一个视频的详情页面进行抓取
+            href_list = video_list.xpath('./a/@href').extract()
+            for i in range(len(href_list)):
+                # 为了爬取分区等数据，需要进入每一个视频的详情页面进行抓取
                 yield Request(
                     "https://api.bilibili.com/x/article/archives?ids=" +
-                    aid_str.rstrip(','))
+                    href_list[i][9:-1],
+                    callback=self.detailParse)
+        except Exception as error:
+            # 出现错误时打印错误日志
+            mailer.send(
+                to=["604264970@qq.com"],
+                subject="BiliobSpiderError",
+                body="{}\n{}".format(response.url, error),
+            )
+            logging.error("视频爬虫在解析时发生错误")
+            logging.error(response.url)
+            logging.error(error)
 
-    def parse(self, response):
+    def detailParse(self, response):
         try:
             r = json.loads(response.body)
             d = r["data"]
@@ -168,7 +161,7 @@ class VideoSpider(scrapy.spiders.Spider):
                 coin = d[each_key]['stat']['coin']
                 share = d[each_key]['stat']['share']
                 like = d[each_key]['stat']['like']
-                current_date = datetime.now()
+                current_date = datetime.datetime.now()
                 data = {
                     'view': view,
                     'favorite': favorite,
@@ -179,13 +172,12 @@ class VideoSpider(scrapy.spiders.Spider):
                     'datetime': current_date
                 }
 
-
                 subChannel = d[each_key]['tname']
                 title = d[each_key]['title']
                 date = d[each_key]['pubdate']
                 tid = d[each_key]['tid']
                 pic = d[each_key]['pic']
-                item = VideoItem()
+                item = VideoAndAuthorItem()
                 item['current_view'] = view
                 item['current_favorite'] = favorite
                 item['current_danmaku'] = danmaku
@@ -197,7 +189,7 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['mid'] = mid
                 item['pic'] = pic
                 item['author'] = author
-                item['data'] = data
+                item['data_video'] = data
                 item['title'] = title
                 item['subChannel'] = subChannel
                 item['datetime'] = date
@@ -213,7 +205,10 @@ class VideoSpider(scrapy.spiders.Spider):
                         item['channel'] == '娱乐'
                 else:
                     item['channel'] = None
-                yield item
+                yield Request(
+                    "https://api.bilibili.com/x/web-interface/card?mid=" +
+                    str(mid), meta={'item': item},
+                    method='GET', callback=self.authorParse)
 
         except Exception as error:
             # 出现错误时打印错误日志
@@ -228,3 +223,63 @@ class VideoSpider(scrapy.spiders.Spider):
             logging.error(item)
             logging.error(response.url)
             logging.error(error)
+
+    def authorParse(self, response):
+        try:
+            item = response.meta['item']
+            j = json.loads(response.body)
+            name = j['data']['card']['name']
+            mid = j['data']['card']['mid']
+            sex = j['data']['card']['sex']
+            face = j['data']['card']['face']
+            fans = j['data']['card']['fans']
+            attention = j['data']['card']['attention']
+            level = j['data']['card']['level_info']['current_level']
+            official = j['data']['card']['Official']['title']
+            archive = j['data']['archive_count']
+            article = j['data']['article_count']
+            face = j['data']['card']['face']
+            item['mid'] = int(mid)
+            item['name'] = name
+            item['face'] = face
+            item['official'] = official
+            item['sex'] = sex
+            item['level'] = int(level)
+            item['data_author'] = {
+                'fans': int(fans),
+                'attention': int(attention),
+                'archive': int(archive),
+                'article': int(article),
+                'datetime': datetime.datetime.now()
+            }
+            item['c_fans'] = int(fans)
+            item['c_attention'] = int(attention)
+            item['c_archive'] = int(archive)
+            item['c_article'] = int(article)
+            yield Request(
+                "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
+                    mid=str(mid)),
+                meta={'item': item},
+                method='GET',
+                callback=self.parse_view)
+        except Exception as error:
+            # 出现错误时打印错误日志
+            mailer.send(
+                to=["604264970@qq.com"],
+                subject="BiliobSpiderError",
+                body="{}\n{}\n{}".format(item, response.url, error),
+            )
+            logging.error("视频爬虫在解析时发生错误")
+            logging.error(response.url)
+            logging.error(error)
+
+    def parse_view(self, response):
+        j = json.loads(response.body)
+        archive_view = j['data']['archive']['view']
+        article_view = j['data']['article']['view']
+        item = response.meta['item']
+        item['data_author']['archiveView'] = archive_view
+        item['data_author']['articleView'] = article_view
+        item['c_archive_view'] = int(archive_view)
+        item['c_article_view'] = int(article_view)
+        yield item
