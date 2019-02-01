@@ -11,6 +11,80 @@ import datetime
 import logging
 
 
+class StrongPipeline(object):
+    def __init__(self):
+        # 链接mongoDB
+        self.client = MongoClient(settings['MINGO_HOST'], 27017)
+        # 数据库登录需要帐号密码
+        self.client.admin.authenticate(settings['MINGO_USER'],
+                                       settings['MONGO_PSW'])
+        self.db = self.client['biliob']  # 获得数据库的句柄
+
+    def process_item(self, item, spider):
+        try:
+            self.coll = self.db['video']
+            self.coll.update_one({
+                'aid': int(item['aid'])
+            }, {
+                '$set': {
+                    'cView': item['current_view'],
+                    'cFavorite': item['current_favorite'],
+                    'cDanmaku': item['current_danmaku'],
+                    'cCoin': item['current_coin'],
+                    'cShare': item['current_share'],
+                    'cLike': item['current_like'],
+                    'cDatetime': item['current_datetime'],
+                    'author': item['author'],
+                    'subChannel': item['subChannel'],
+                    'channel': item['channel'],
+                    'mid': item['mid'],
+                    'pic': item['pic'],
+                    'title': item['title'],
+                    'datetime': datetime.datetime.fromtimestamp(
+                        item['datetime'])
+                },
+                '$push': {
+                    'data': {
+                        '$each': [item['data_video']],
+                        '$position': 0
+                    }
+                }
+            }, True)
+        except Exception as error:
+            # 出现错误时打印错误日志
+            logging.error(error)
+        try:
+            self.coll = self.db['author']  # 获得collection的句柄
+            self.coll.update_one({
+                'mid': item['mid']
+            }, {
+                '$set': {
+                    'focus': True,
+                    'sex': item['sex'],
+                    'name': item['name'],
+                    'face': item['face'],
+                    'level': item['level'],
+                    'cFans': item['c_fans'],
+                    'official': item['official'],
+                    'cArchive': item['c_archive'],
+                    'cArticle': item['c_article'],
+                    'cAttention': item['c_attention'],
+                    'cArchive_view': item['c_archive_view'],
+                    'cArticle_view': item['c_article_view'],
+                },
+                '$push': {
+                    'data': {
+                        '$each': [item['data_author']],
+                        '$position': 0
+                    }
+                }
+            }, True)
+        except Exception as error:
+            # 出现错误时打印错误日志
+            logging.error(error)
+        return item
+
+
 class VideoPipeline(object):
     def __init__(self):
         # 链接mongoDB
@@ -55,6 +129,7 @@ class VideoPipeline(object):
             # 出现错误时打印错误日志
             logging.error(error)
 
+
 class VideoPipelineFromKan(object):
     def __init__(self):
         # 链接mongoDB
@@ -88,6 +163,7 @@ class VideoPipelineFromKan(object):
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error(error)
+
 
 class BangumiPipeLine(object):
     def __init__(self):
