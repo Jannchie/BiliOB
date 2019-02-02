@@ -71,8 +71,8 @@ schedule.every().day.at('22:00').do(run_threaded, video_watcher)
 schedule.every().day.at('21:00').do(run_threaded, bili_monthly_rank)
 schedule.every().week.do(run_threaded, video_spider_all)
 schedule.every().hour.do(run_threaded, site)
-schedule.every(5).minutes.do(run_threaded, online)
-schedule.every().minute.do(run_threaded, strong)
+schedule.every(15).minutes.do(run_threaded, online)
+schedule.every(10).minute.do(run_threaded, strong)
 
 
 print('开始运行计划任务..')
