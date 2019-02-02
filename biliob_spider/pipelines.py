@@ -52,7 +52,7 @@ class StrongPipeline(object):
             }, True)
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
         try:
             self.coll = self.db['author']  # 获得collection的句柄
             self.coll.update_one({
@@ -81,7 +81,7 @@ class StrongPipeline(object):
             }, True)
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
         return item
 
 
@@ -127,7 +127,7 @@ class VideoPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class VideoPipelineFromKan(object):
@@ -162,7 +162,7 @@ class VideoPipelineFromKan(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class BangumiPipeLine(object):
@@ -200,7 +200,7 @@ class BangumiPipeLine(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class DonghuaPipeLine(object):
@@ -238,7 +238,7 @@ class DonghuaPipeLine(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class SiteInfoPipeline(object):
@@ -263,7 +263,7 @@ class SiteInfoPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class AuthorPipeline(object):
@@ -305,7 +305,7 @@ class AuthorPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class OnlinePipeline(object):
@@ -337,7 +337,7 @@ class OnlinePipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class TagPipeLine(object):
@@ -369,7 +369,7 @@ class TagPipeLine(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class VideoAddPipeline(object):
@@ -396,7 +396,7 @@ class VideoAddPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class AuthorChannelPipeline(object):
@@ -421,7 +421,7 @@ class AuthorChannelPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
 
 
 class BiliMonthlyRankPipeline(object):
@@ -455,4 +455,4 @@ class BiliMonthlyRankPipeline(object):
             return item
         except Exception as error:
             # 出现错误时打印错误日志
-            logging.error(error)
+            logging.error('{}: {}'.format(spider.name, error))
