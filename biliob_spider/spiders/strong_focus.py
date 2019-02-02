@@ -120,7 +120,7 @@ class StrongSpider(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.StrongPipeline': 300
         },
-        'DOWNLOAD_DELAY': 20
+        'DOWNLOAD_DELAY': 10
     }
 
     def parse(self, response):
