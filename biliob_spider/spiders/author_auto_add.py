@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 import scrapy
 from mail import mailer
 from scrapy.http import Request
@@ -60,33 +60,49 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
             logging.error(error)
 
     def detailParse(self, response):
-        j = json.loads(response.body)
-        name = j['data']['card']['name']
-        mid = j['data']['card']['mid']
-        sex = j['data']['card']['sex']
-        face = j['data']['card']['face']
-        fans = j['data']['card']['fans']
-        attention = j['data']['card']['attention']
-        level = j['data']['card']['level_info']['current_level']
-        official = j['data']['card']['Official']['title']
-        archive = j['data']['archive_count']
-        article = j['data']['article_count']
-        face = j['data']['card']['face']
-        item = AuthorItem()
-        # 粉丝数大于1000才加入
-        if int(fans) > 1000:
-            item['mid'] = int(mid)
-            item['name'] = name
-            item['face'] = face
-            item['official'] = official
-            item['sex'] = sex
-            item['focus'] = True
-            item['level'] = int(level)
-            item['data'] = {
-                'fans': int(fans),
-                'attention': int(attention),
-                'archive': int(archive),
-                'article': int(article),
-                'datetime': datetime.datetime.now()
-            }
-            yield item
+        try:
+            j = json.loads(response.body)
+            name = j['data']['card']['name']
+            mid = j['data']['card']['mid']
+            sex = j['data']['card']['sex']
+            face = j['data']['card']['face']
+            fans = j['data']['card']['fans']
+            attention = j['data']['card']['attention']
+            level = j['data']['card']['level_info']['current_level']
+            official = j['data']['card']['Official']['title']
+            archive = j['data']['archive_count']
+            article = j['data']['article_count']
+            face = j['data']['card']['face']
+            item = AuthorItem()
+
+            # 粉丝数大于1000才加入
+            if int(fans) > 1000:
+                item['c_fans'] = int(fans)
+                item['c_attention'] = int(attention)
+                item['c_archive'] = int(archive)
+                item['c_article'] = int(article)
+                item['mid'] = int(mid)
+                item['name'] = name
+                item['face'] = face
+                item['official'] = official
+                item['sex'] = sex
+                item['focus'] = True
+                item['level'] = int(level)
+                item['data'] = {
+                    'fans': int(fans),
+                    'attention': int(attention),
+                    'archive': int(archive),
+                    'article': int(article),
+                    'datetime': datetime.datetime.now()
+                }
+                yield item
+        except Exception as error:
+            # 出现错误时打印错误日志
+            mailer.send(
+                to=["604264970@qq.com"],
+                subject="BiliobSpiderError",
+                body="{}\n{}".format(response.url, error),
+            )
+            logging.error("视频爬虫在解析时发生错误")
+            logging.error(response.url)
+            logging.error(error)
