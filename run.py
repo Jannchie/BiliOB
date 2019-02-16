@@ -6,6 +6,11 @@ import time
 from subprocess import Popen
 import logging
 import threading
+from biliob_analyzer.video_rank import computeVideoRank
+
+
+def videoRank():
+    computeVideoRank()
 
 
 def site():
@@ -52,6 +57,10 @@ def data_analyze():
     Popen(['python', 'run_analyzer.py'])
 
 
+def weekly_analyze():
+    Popen(['python', 'run_weekly_analyzer.py'])
+
+
 def bili_monthly_rank():
     Popen(['scrapy', 'crawl', 'biliMonthlyRank'])
 
@@ -70,6 +79,7 @@ schedule.every().day.at('16:30').do(run_threaded, donghua)
 schedule.every().day.at('22:00').do(run_threaded, video_watcher)
 schedule.every().day.at('21:00').do(run_threaded, bili_monthly_rank)
 schedule.every().week.do(run_threaded, video_spider_all)
+schedule.every().week.do(run_threaded, videoRank)
 schedule.every().hour.do(run_threaded, site)
 schedule.every(15).minutes.do(run_threaded, online)
 schedule.every(10).minutes.do(run_threaded, strong)
