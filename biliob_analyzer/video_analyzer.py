@@ -65,17 +65,11 @@ class VideoAnalyzer(object):
                         delete = False
                 if delete:
                     count_delete += 1
-                    logger.info("! 删除追踪："+each_doc['title']+' 当前播放：'+str(
-                        each_doc['data'][len(each_doc['data'])-1]['view']))
                     self.coll.delete_one({'aid': each_doc['aid']})
                 elif focus:
                     count_focus += 1
-                    logger.info("√ 持续追踪："+each_doc['title']+' 当前播放：'+str(
-                        each_doc['data'][len(each_doc['data'])-1]['view']))
                 else:
                     count_unfocus += 1
-                    logger.info("× 不再追踪："+each_doc['title']+' 当前播放：'+str(
-                        each_doc['data'][len(each_doc['data'])-1]['view']))
                     self.coll.update_one({'aid': each_doc['aid']}, {
                                          '$set': {'focus': False}})
                 pre_view = -1
