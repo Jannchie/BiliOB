@@ -12,9 +12,14 @@
 import random
 from db import redis_connect_string
 
+DUPEFILTER_CLASS = 'biliob_spider.filter.CloseDupefilter'
+
+SCHEDULER_PERSIST = True
+SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
+
 REDIS_URL = redis_connect_string
 
-# LOG_FILE = "biliob_spider.log"
+LOG_FILE = "biliob_spider.log"
 LOG_LEVEL = "WARNING"
 
 BOT_NAME = 'biliob_spider'
