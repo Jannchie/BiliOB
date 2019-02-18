@@ -14,7 +14,7 @@ from scrapy_redis.spiders import RedisSpider
 
 
 class VideoSpiderWithRedis(RedisSpider):
-    name = "VideoSpiderWithRedis"
+    name = "videoRedis"
     allowed_domains = ["bilibili.com"]
     start_urls = []
     custom_settings = {
