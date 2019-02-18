@@ -9,6 +9,8 @@ from db import settings
 from db import mysql_connect
 import datetime
 import logging
+import redis
+from db import redis_connect_string
 
 
 class StrongPipeline(object):
@@ -19,9 +21,11 @@ class StrongPipeline(object):
         self.client.admin.authenticate(settings['MINGO_USER'],
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
+        self.redis_connection = redis.from_url(redis_connect_string)
 
     def process_item(self, item, spider):
         try:
+
             self.coll = self.db['video']
             self.coll.update_one({
                 'aid': int(item['aid'])
@@ -50,6 +54,9 @@ class StrongPipeline(object):
                     }
                 }
             }, True)
+            # 刷新redis数据缓存
+            self.redis_connection.delete(
+                "video_detail::{}".format(item['aid']))
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error('{}: {}'.format(spider.name, error))
@@ -79,6 +86,8 @@ class StrongPipeline(object):
                     }
                 }
             }, True)
+            self.redis_connection.delete(
+                "author_detail::{}".format(item['mid']))
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error('{}: {}'.format(spider.name, error))
@@ -94,6 +103,7 @@ class VideoPipeline(object):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
+        self.redis_connection = redis.from_url(redis_connect_string)
 
     def process_item(self, item, spider):
         try:
@@ -124,6 +134,8 @@ class VideoPipeline(object):
                     }
                 }
             }, True)
+            self.redis_connection.delete(
+                "video_detail::{}".format(item['aid']))
             return item
         except Exception as error:
             # 出现错误时打印错误日志
@@ -275,6 +287,7 @@ class AuthorPipeline(object):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
+        self.redis_connection = redis.from_url(redis_connect_string)
 
     def process_item(self, item, spider):
         try:
@@ -297,6 +310,8 @@ class AuthorPipeline(object):
                     }
                 }
             }, True)
+            self.redis_connection.delete(
+                "author_detail::{}".format(item['mid']))
             return item
         except Exception as error:
             # 出现错误时打印错误日志
@@ -403,6 +418,7 @@ class AuthorChannelPipeline(object):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
+        self.redis_connection = redis.from_url(redis_connect_string)
 
     def process_item(self, item, spider):
         try:
@@ -413,6 +429,8 @@ class AuthorChannelPipeline(object):
                     'channels': item['channels']
                 },
             }, True)
+            self.redis_connection.delete(
+                "author_detail::{}".format(item['mid']))
             return item
         except Exception as error:
             # 出现错误时打印错误日志
