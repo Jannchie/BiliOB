@@ -13,7 +13,7 @@ from scrapy_redis.spiders import RedisSpider
 
 
 class AuthorUpdateWithRedis(RedisSpider):
-    name = "AuthorUpdateWithRedis"
+    name = "authorRedis"
     allowed_domains = ["bilibili.com"]
     start_urls = []
     custom_settings = {
