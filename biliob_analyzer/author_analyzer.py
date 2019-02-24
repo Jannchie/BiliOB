@@ -1,16 +1,24 @@
 from db import settings
-from pymongo import MongoClient 
+from pymongo import MongoClient
 from datetime import datetime
 from datetime import timedelta
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
+logger = logging.getLogger(__name__)
+
+
 class AuthorAnalyzer(object):
     def __init__(self):
         # 链接mongoDB
         self.client = MongoClient(settings['MINGO_HOST'], 27017)
         # 数据库登录需要帐号密码
         self.client.admin.authenticate(settings['MINGO_USER'],
-                                        settings['MONGO_PSW'])
+                                       settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
+
     def author_filter(self):
         pre_fans = -1
         c_fans = -1
@@ -19,7 +27,7 @@ class AuthorAnalyzer(object):
         c_date = datetime
         count_unfocus = 0
         count_focus = 0
-        for each_doc in self.coll.find({'focus':True}):
+        for each_doc in self.coll.find({'focus': True}):
             flag_cool = 0
             if 'data' in each_doc:
                 each_doc['data'].reverse()
@@ -54,18 +62,13 @@ class AuthorAnalyzer(object):
 
                 if focus:
                     count_focus += 1
-                    print("√ 持续追踪："+each_doc['name'])
-                    self.coll.update_one({'mid':each_doc['mid']},{'$set':{'focus':True}})
                 else:
                     count_unfocus += 1
-                    print("× 不再追踪："+each_doc['name'])
-                    self.coll.update_one({'mid':each_doc['mid']},{'$set':{'focus':False}})
                 pre_fans = -1
                 c_fans = -1
-        print("· 本轮筛选结果：")
-        print("× 不再追踪总数："+str(count_unfocus))
-        print("√ 持续追踪总数："+str(count_focus))
-    
+        logger.info("· 本轮筛选结果：")
+        logger.info("× 不再追踪总数："+str(count_unfocus))
+        logger.info("√ 持续追踪总数："+str(count_focus))
+
     def fans_variation(self):
         pass
-
