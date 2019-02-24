@@ -10,8 +10,16 @@
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import random
+from db import redis_connect_string
 
-# LOG_FILE = "biliob_spider.log"
+DUPEFILTER_CLASS = 'biliob_spider.filter.CloseDupefilter'
+
+SCHEDULER_PERSIST = True
+SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
+
+REDIS_URL = redis_connect_string
+
+LOG_FILE = "biliob_spider.log"
 LOG_LEVEL = "WARNING"
 
 BOT_NAME = 'biliob_spider'
@@ -28,7 +36,7 @@ USER_AGENT_LIST = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36'
 ]
 # 随机生成user agent
-USER_AGENT = random.choice(USER_AGENT_LIST) 
+USER_AGENT = random.choice(USER_AGENT_LIST)
 
 
 # Obey robots.txt rules
@@ -52,28 +60,28 @@ COOKIES_ENABLED = False
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
+# DEFAULT_REQUEST_HEADERS = {
 #   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 #   'Accept-Language': 'en',
-#}
+# }
 
 # Enable or disable spider middlewares
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-#SPIDER_MIDDLEWARES = {
+# SPIDER_MIDDLEWARES = {
 #    'BilibiliRankListSpider.middlewares.BilibiliranklistspiderSpiderMiddleware': 543,
-#}
+# }
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+# DOWNLOADER_MIDDLEWARES = {
 #    'BilibiliRankListSpider.middlewares.BilibiliranklistspiderDownloaderMiddleware': 543,
-#}
+# }
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
+# EXTENSIONS = {
 #    'scrapy.extensions.telnet.TelnetConsole': None,
-#}
+# }
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
