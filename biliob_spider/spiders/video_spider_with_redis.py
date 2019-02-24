@@ -10,10 +10,12 @@ import logging
 from pymongo import MongoClient
 from db import settings
 from util import sub_channel_2_channel
+from scrapy_redis.spiders import RedisSpider
+from db import redis_connect_string
 
 
-class VideoSpider(scrapy.spiders.Spider):
-    name = "videoSpider"
+class VideoSpiderWithRedis(RedisSpider):
+    name = "videoRedis"
     allowed_domains = ["bilibili.com"]
     start_urls = []
     custom_settings = {
@@ -30,27 +32,6 @@ class VideoSpider(scrapy.spiders.Spider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
-
-    def start_requests(self):
-        # 只需要aid
-        c = self.coll.find(
-            {'$or': [{'focus': True}, {'forceFocus': True}]}, {'aid': 1})
-        x = 0
-        aid_list = []
-        for each_doc in c:
-            x = x + 1
-            aid_list.append(each_doc['aid'])
-        i = 0
-        while aid_list != []:
-            if i == 0:
-                aid_str = ''
-            aid_str += str(aid_list.pop()) + ','
-            i = i + 1
-            if i == 100 or aid_list == []:
-                i = 0
-                yield Request(
-                    "https://api.bilibili.com/x/article/archives?ids=" +
-                    aid_str.rstrip(','))
 
     def parse(self, response):
         try:
