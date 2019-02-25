@@ -9,7 +9,9 @@ import logging
 from pymongo import MongoClient
 import datetime
 from db import settings
+from db import redis_connect_string
 from scrapy_redis.spiders import RedisSpider
+import redis
 
 
 class AuthorUpdateWithRedis(RedisSpider):
@@ -20,7 +22,7 @@ class AuthorUpdateWithRedis(RedisSpider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
         },
-        'DOWNLOAD_DELAY': 2
+        'DOWNLOAD_DELAY': 10
     }
 
     def __init__(self):
@@ -31,12 +33,17 @@ class AuthorUpdateWithRedis(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
+        self.redis_connection = redis.from_url(redis_connect_string)
 
     def parse(self, response):
         try:
             j = json.loads(response.body)
             name = j['data']['card']['name']
             mid = j['data']['card']['mid']
+
+            # 刷新redis数据缓存
+            self.redis_connection.delete("author_detail::{}".format(mid))
+
             sex = j['data']['card']['sex']
             face = j['data']['card']['face']
             fans = j['data']['card']['fans']

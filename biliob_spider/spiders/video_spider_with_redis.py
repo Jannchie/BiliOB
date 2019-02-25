@@ -11,6 +11,7 @@ from pymongo import MongoClient
 from db import settings
 from util import sub_channel_2_channel
 from scrapy_redis.spiders import RedisSpider
+from db import redis_connect_string
 
 
 class VideoSpiderWithRedis(RedisSpider):
