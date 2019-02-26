@@ -16,23 +16,13 @@ import jieba
 import jieba.analyse
 import re
 
-jieba.load_userdict('./biliob_analyzer/dict.txt')
 
 
-def q_to_b(q_str):
-    """全角转半角"""
-    b_str = ""
-    for uchar in q_str:
-        inside_code = ord(uchar)
-        if inside_code == 12288:  # 全角空格直接转换
-            inside_code = 32
-        elif 65374 >= inside_code >= 65281:  # 全角字符（除空格）根据关系转化
-            inside_code -= 65248
-        b_str += chr(inside_code)
-    return b_str
+
 
 
 class DanmakuAggregateSpider(RedisSpider):
+
     name = "DanmakuAggregate"
     allowed_domains = ["bilibili.com"]
     start_urls = []
@@ -48,12 +38,25 @@ class DanmakuAggregateSpider(RedisSpider):
 
     def __init__(self):
         # 链接mongoDB
+        jieba.load_userdict('./biliob_analyzer/dict.txt')
         self.client = MongoClient(settings['MINGO_HOST'], 27017)
         # 数据库登录需要帐号密码
         self.client.admin.authenticate(settings['MINGO_USER'],
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
+
+    def q_to_b(self,q_str):
+        """全角转半角"""
+        b_str = ""
+        for uchar in q_str:
+            inside_code = ord(uchar)
+            if inside_code == 12288:  # 全角空格直接转换
+                inside_code = 32
+            elif 65374 >= inside_code >= 65281:  # 全角字符（除空格）根据关系转化
+                inside_code -= 65248
+            b_str += chr(inside_code)
+        return b_str
 
     def parse(self, response):
         try:
@@ -97,7 +100,7 @@ class DanmakuAggregateSpider(RedisSpider):
 
     def parseDanmaku(self, response):
         duration = response.meta['duration']
-        danmaku_text = q_to_b(
+        danmaku_text = self.q_to_b(
             " ".join(response.xpath("d/text()").extract()).upper())
         # 自实现太low，使用自带关键字
         word_frequency = dict(jieba.analyse.extract_tags(danmaku_text, topK=50, withWeight=True, allowPOS=(
