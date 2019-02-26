@@ -131,3 +131,12 @@ class VideoWatcherItem(scrapy.Item):
     mid = scrapy.Field()
     aid = scrapy.Field()
     channels = scrapy.Field()
+
+
+class DanmakuAggregateItem(scrapy.Item):
+    aid = scrapy.Field()
+    p_name = scrapy.Field()
+    page_number = scrapy.Field()
+    word_frequency = scrapy.Field()
+    danmaku_density = scrapy.Field()
+    duration = scrapy.Field()
