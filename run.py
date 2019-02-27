@@ -57,8 +57,8 @@ def data_analyze():
     Popen(['python', 'run_analyzer.py'])
 
 
-def weekly_analyze():
-    Popen(['python', 'run_weekly_analyzer.py'])
+# def weekly_analyze():
+#     Popen(['python', 'run_weekly_analyzer.py'])
 
 
 def bili_monthly_rank():

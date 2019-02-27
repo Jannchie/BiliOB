@@ -6,7 +6,6 @@ import time
 
 import redis
 import scrapy
-from memory_profiler import profile
 from pymongo import MongoClient
 from scrapy.http import Request
 from scrapy_redis.spiders import RedisSpider
@@ -26,7 +25,6 @@ class BiliobSpider(scrapy.spiders.Spider):
         },
         'DOWNLOAD_DELAY': 10
     }
-    @profile
     def __init__(self):
 
         # 链接mongoDB
@@ -38,7 +36,6 @@ class BiliobSpider(scrapy.spiders.Spider):
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
-    @profile
     def parse(self, response):
         try:
             j = json.loads(response.body)
