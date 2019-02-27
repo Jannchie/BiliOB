@@ -13,36 +13,6 @@ import redis
 from db import redis_connect_string
 
 
-class DanmakuAggregatePipeline(object):
-    def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
-        self.redis_connection = redis.from_url(redis_connect_string)
-
-    def process_item(self, item, spider):
-        self.coll = self.db['video']
-        self.coll.update_one({
-            'aid': int(item['aid'])
-        }, {
-            '$set': {
-                'danmaku_aggregate.{}'.format(item['page_number']): {
-                    'duration': item['duration'],
-                    'p_name': item['p_name'],
-                    'danmaku_density': item['danmaku_density'],
-                    'word_frequency': item['word_frequency']
-                },
-                'danmaku_aggregate.updatetime':datetime.datetime.now()
-            }
-        }, True)
-        # 刷新redis数据缓存
-        self.redis_connection.delete(
-            "video_detail::{}".format(item['aid']))
-
-
 class StrongPipeline(object):
     def __init__(self):
         # 链接mongoDB
