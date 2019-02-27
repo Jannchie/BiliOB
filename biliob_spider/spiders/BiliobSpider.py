@@ -1,31 +1,34 @@
 # coding=utf-8
-import scrapy
-from mail import mailer
-from scrapy.http import Request
-from biliob_spider.items import AuthorItem
-import time
+import datetime
 import json
 import logging
-from pymongo import MongoClient
-import datetime
-from db import settings
-from db import redis_connect_string
-from scrapy_redis.spiders import RedisSpider
+import time
+
 import redis
+import scrapy
+from memory_profiler import profile
+from pymongo import MongoClient
+from scrapy.http import Request
+from scrapy_redis.spiders import RedisSpider
+
+from biliob_spider.items import AuthorItem
+from db import redis_connect_string, settings
+from mail import mailer
 
 
-class BiliobSpider(RedisSpider):
+class BiliobSpider(scrapy.spiders.Spider):
     name = "BiliobSpider"
     allowed_domains = ["bilibili.com"]
-    start_urls = []
+    start_urls = ['www.bilibili.com']
     custom_settings = {
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.BiliobPipeline': 300
         },
         'DOWNLOAD_DELAY': 10
     }
-
+    @profile
     def __init__(self):
+
         # 链接mongoDB
         self.client = MongoClient(settings['MINGO_HOST'], 27017)
         # 数据库登录需要帐号密码
@@ -35,6 +38,7 @@ class BiliobSpider(RedisSpider):
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
+    @profile
     def parse(self, response):
         try:
             j = json.loads(response.body)
