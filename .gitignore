@@ -5,3 +5,5 @@ nohup.out
 biliob_spider.log
 debug.py
 mail.py
+.vscode/settings.json
+.vscode/launch.json
