@@ -36,7 +36,7 @@ class DanmakuSpiderPipeline(object):
                     'danmaku_density': item['danmaku_density'],
                     'word_frequency': item['word_frequency']
                 },
-                'danmaku_aggregate': {'updatetime': datetime.datetime.now()}
+                'danmaku_aggregate': {'updatetime':datetime.datetime.now()}
             }
         }, True)
         # 刷新redis数据缓存
