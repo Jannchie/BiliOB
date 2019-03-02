@@ -11,6 +11,7 @@ class AddKeyword():
     def __init__(self):
         self.mongo_author = db['author']
         self.mongo_video = db['video']
+        self.mongo_word = db['search_word']
 
     def get_video_kw_list(self, aid):
         # 关键字从name和official中提取
@@ -90,3 +91,35 @@ class AddKeyword():
         for each_video in videos:
             aid = each_video['aid']
             self.add_video_kw(aid)
+
+    def refresh_all_author(self):
+        authors = self.mongo_author.find(
+            {}, {'_id': 0, 'mid': 1})
+        for each_author in authors:
+            mid = each_author['mid']
+            self.add_author_kw(mid)
+
+    def refresh_all_video(self):
+        videos = self.mongo_video.find(
+            {}, {'_id': 0, 'aid': 1})
+        for each_video in videos:
+            aid = each_video['aid']
+            self.add_video_kw(aid)
+
+    def add_omitted(self):
+        d = open('./biliob_analyzer/dict.txt', 'r',
+                 encoding='utf8').read().split('\n')
+        for each in self.mongo_word.find():
+            if 'aid' in each and each['aid'] not in d:
+                d.append(each['aid'])
+            elif 'mid' in each and each['mid'] not in d:
+                d.append(each['mid'])
+            pass
+        pass
+        o = open('./biliob_analyzer/dict.txt',
+                 'w', encoding='utf8', newline='')
+        for each in d:
+            o.write(each+'\n')
+        o.close()
+        self.refresh_all_video()
+        self.refresh_all_author()
