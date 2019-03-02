@@ -5,6 +5,10 @@ import logging
 from pymongo import DESCENDING
 
 
+def format_p_rank(i, count):
+    return round(i / count * 100, 2)
+
+
 def computeVideoRank():
     coll = db['video']  # 获得collection的句柄
 
@@ -22,12 +26,10 @@ def computeVideoRank():
         i = 1
         videos = coll.find({each_key: {'$exists': 1}}, {'aid': 1, 'rank': 1, each_key: 1}).batch_size(
             300).sort(each_key, DESCENDING)
-        if each_key == 'cView':
-            each_rank = 'cViewRank'
-            each_d_rank = 'dViewRank'
-
         each_rank = each_key + 'Rank'
         each_d_rank = 'd' + each_key[1:] + 'Rank'
+        each_p_rank = 'p' + each_key[1:] + 'Rank'
+        count = coll.find().count()
 
         for each_video in videos:
             # 如果没有data 直接下一个
@@ -39,20 +41,24 @@ def computeVideoRank():
                     else:
                         rank[each_d_rank] = -1
                     rank[each_rank] = i
+                    rank[each_p_rank] = format_p_rank(i, count)
                 else:
                     rank = {
                         each_rank: i,
-                        each_d_rank: -1
+                        each_d_rank: -1,
+                        each_p_rank: format_p_rank(i, count)
                     }
             if each_video[each_key] == 0:
                 if 'rank' in each_video:
                     rank = each_video['rank']
                     rank[each_d_rank] = 0
                     rank[each_rank] = -1
+                    rank[each_p_rank] = -1
                 else:
                     rank = {
                         each_rank: -1,
-                        each_d_rank: 0
+                        each_d_rank: 0,
+                        each_p_rank: -1
                     }
             if each_key == keys[-1]:
                 rank['updateTime'] = datetime.datetime.now()
