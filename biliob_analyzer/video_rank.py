@@ -3,6 +3,7 @@ from db import db
 import datetime
 import logging
 from pymongo import DESCENDING
+from time import sleep
 
 
 def format_p_rank(i, count):
@@ -25,13 +26,15 @@ def computeVideoRank():
         logger.info("开始计算视频{}排名".format(each_key))
         i = 1
         videos = coll.find({each_key: {'$exists': 1}}, {'aid': 1, 'rank': 1, each_key: 1}).batch_size(
-            300).sort(each_key, DESCENDING)
+            200).sort(each_key, DESCENDING)
         each_rank = each_key + 'Rank'
         each_d_rank = 'd' + each_key[1:] + 'Rank'
         each_p_rank = 'p' + each_key[1:] + 'Rank'
-        count = coll.find().count()
+        count = coll.count_documents({each_key: {'$exists': 1}})
 
         for each_video in videos:
+            logger.info("[aid]{}".format(each_video['aid']))
+            sleep(0.01)
             # 如果没有data 直接下一个
             if each_key in each_video:
                 if 'rank' in each_video:
@@ -45,7 +48,7 @@ def computeVideoRank():
                 else:
                     rank = {
                         each_rank: i,
-                        each_d_rank: -1,
+                        each_d_rank: 0,
                         each_p_rank: format_p_rank(i, count)
                     }
             if each_video[each_key] == 0:
@@ -70,3 +73,6 @@ def computeVideoRank():
             i += 1
 
         logger.info("完成计算视频数据排名")
+
+
+computeVideoRank()
