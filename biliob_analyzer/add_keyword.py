@@ -1,17 +1,16 @@
 from pymongo import ReturnDocument
 import jieba
 from db import db
+from time import sleep
 
 # 载入字典
-jieba.load_userdict('./biliob_analyzer/dict.txt')
-
-
-class AddKeyword():
+class KeywordAdder():
 
     def __init__(self):
         self.mongo_author = db['author']
         self.mongo_video = db['video']
         self.mongo_word = db['search_word']
+        jieba.load_userdict('./biliob_analyzer/dict.txt')
 
     def get_video_kw_list(self, aid):
         # 关键字从name和official中提取
@@ -39,6 +38,7 @@ class AddKeyword():
         return list(set(seg_list))
 
     def add_to_video(self, aid, seg_list):
+        sleep(0.01)
         self.mongo_video.update_one({'aid': aid}, {'$set': {
             'keyword': seg_list
         }})
@@ -75,35 +75,38 @@ class AddKeyword():
         return True
 
     def add_to_author(self, mid, seg_list):
+        sleep(0.01)
         self.mongo_author.update_one(
             {'mid': mid}, {'$set': {'keyword': seg_list}})
 
     def add_all_author(self):
         authors = self.mongo_author.find(
-            {'keyword': {'$exists': False}}, {'_id': 0, 'mid': 1})
+            {'keyword': {'$exists': False}}, {'_id': 0, 'mid': 1}).batch_size(200)
         for each_author in authors:
             mid = each_author['mid']
             self.add_author_kw(mid)
 
     def add_all_video(self):
         videos = self.mongo_video.find(
-            {'keyword': {'$exists': False}}, {'_id': 0, 'aid': 1})
+            {'keyword': {'$exists': False}}, {'_id': 0, 'aid': 1}).batch_size(200)
         for each_video in videos:
             aid = each_video['aid']
             self.add_video_kw(aid)
 
     def refresh_all_author(self):
         authors = self.mongo_author.find(
-            {}, {'_id': 0, 'mid': 1})
+            {}, {'_id': 0, 'mid': 1}).batch_size(500)
         for each_author in authors:
             mid = each_author['mid']
+            print("[mid]"+str(mid))
             self.add_author_kw(mid)
 
     def refresh_all_video(self):
         videos = self.mongo_video.find(
-            {}, {'_id': 0, 'aid': 1})
+            {}, {'_id': 0, 'aid': 1}).batch_size(500)
         for each_video in videos:
             aid = each_video['aid']
+            print("[aid]"+str(aid))
             self.add_video_kw(aid)
 
     def add_omitted(self):
@@ -121,5 +124,6 @@ class AddKeyword():
         for each in d:
             o.write(each+'\n')
         o.close()
-        self.refresh_all_video()
+        jieba.load_userdict('./biliob_analyzer/dict.txt')
         self.refresh_all_author()
+        self.refresh_all_video()
