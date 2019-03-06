@@ -4,6 +4,8 @@ from db import db
 from time import sleep
 
 # 载入字典
+
+
 class KeywordAdder():
 
     def __init__(self):
@@ -81,14 +83,33 @@ class KeywordAdder():
 
     def add_all_author(self):
         authors = self.mongo_author.find(
-            {'keyword': {'$exists': False}}, {'_id': 0, 'mid': 1}).batch_size(200)
+            {
+                '$or': [
+                    {
+                        'keyword': []
+                    }, {
+                        'keyword': {
+                            '$exists': False
+                        }
+                    }
+                ]
+            }, {'_id': 0, 'mid': 1}).batch_size(200)
         for each_author in authors:
             mid = each_author['mid']
             self.add_author_kw(mid)
 
     def add_all_video(self):
-        videos = self.mongo_video.find(
-            {'keyword': {'$exists': False}}, {'_id': 0, 'aid': 1}).batch_size(200)
+        videos = self.mongo_video.find({
+            '$or': [
+                {
+                    'keyword': []
+                }, {
+                    'keyword': {
+                        '$exists': False
+                    }
+                }
+            ]
+        }, {'_id': 0, 'aid': 1}).batch_size(200)
         for each_video in videos:
             aid = each_video['aid']
             self.add_video_kw(aid)
@@ -110,6 +131,8 @@ class KeywordAdder():
             self.add_video_kw(aid)
 
     def add_omitted(self):
+        if self.mongo_word.count_documents({}) < 100:
+            return
         d = open('./biliob_analyzer/dict.txt', 'r',
                  encoding='utf8').read().split('\n')
         for each in self.mongo_word.find():
@@ -124,6 +147,7 @@ class KeywordAdder():
         for each in d:
             o.write(each+'\n')
         o.close()
+        self.mongo_word.delete_many({})
         jieba.load_userdict('./biliob_analyzer/dict.txt')
         self.refresh_all_author()
         self.refresh_all_video()
