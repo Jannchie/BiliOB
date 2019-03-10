@@ -38,7 +38,7 @@ class FansWatcher(object):
         cause = {'type': 'video'}
         for each_v in videos:
             # 相差一日之内
-            if (date - each_v['datetime']).days <= 2:
+            if (date - each_v['datetime']).days >= -1 and (date - each_v['datetime']).days <= 7:
                 temp_video['aid'] = each_v['aid']
                 temp_video['title'] = each_v['title']
                 temp_video['pic'] = each_v['pic']
@@ -56,14 +56,15 @@ class FansWatcher(object):
 
         if cause != {'type': 'video'}:
             out_data['cause'] = cause
-        fans_variation_coll.insert(out_data)
+        fans_variation_coll.replace_one(
+            {'mid': out_data['mid'], 'datetime': out_data['datetime']}, out_data, upsert=True)
 
-    def judge(self, author):
+    def judge(self, author, c_date=None):
         '''
             一共有这样几种可能：
-                1、 大量涨粉        日涨粉数超过上周平均的10倍
-                2、 史诗级涨粉      日涨粉数超过上周平均的50倍
-                3、 传说级涨粉      日涨粉数超过上周平均的100倍
+                1、 大量涨粉        日涨粉数超过上周平均的25倍
+                2、 史诗级涨粉      日涨粉数超过上周平均的50倍或单日涨粉超过10W
+                3、 传说级涨粉      日涨粉数超过上周平均的100倍或单日涨粉超过20W
                 4、 急转直下        上升轨道中的UP主突然掉粉
                 5、 大量掉粉        每日掉粉数突破5K
                 6、 雪崩级掉粉      每日掉粉数突破2W
@@ -79,15 +80,19 @@ class FansWatcher(object):
         for each in data:
             x.append(each['datetime'].timestamp())
             y.append(each['fans'])
+        if len(x) <= 1:
+            return
         # 线性插值
         interrupted_fans = interp1d(x, y, kind='linear')
         temp_date = datetime.datetime.fromtimestamp(start_date)
-        c_date = datetime.datetime(
-            temp_date.year, temp_date.month, temp_date.day).timestamp() + 86400 * 3
+        if c_date == None:
+            c_date = datetime.datetime(
+                temp_date.year, temp_date.month, temp_date.day).timestamp() + 86400 * 3
+        if c_date - 86400 * 2 <= start_date:
+            return
         while (c_date <= end_date):
             date = datetime.datetime.fromtimestamp(c_date)
             daily_array = interrupted_fans([c_date - 86400, c_date])
-
             p_daily_array = interrupted_fans(
                 [c_date - 86400 * 2, c_date - 86400])
             # 24小时前涨粉数
@@ -95,6 +100,7 @@ class FansWatcher(object):
 
             # 每日涨粉数
             d_daily = daily_array[1] - daily_array[0]
+
             if (d_daily >= 3000 or d_daily <= -2000):
 
                 delta_rate = round(d_daily / pd_daily * 100, 2)
@@ -131,18 +137,18 @@ class FansWatcher(object):
                     weekly_mean = (weekly_array[1] - weekly_array[0]) / 7
                     # 上周平均涨粉数
                     delta_rate = round(d_daily / weekly_mean * 100, 2)
-                    if delta_rate >= 10000:
+                    if delta_rate >= 10000 or (d_daily >= 200000 and delta_rate > 0):
                         # 日涨粉数超过上日的100倍
                         self.insert_event(delta_rate, d_daily,
                                           author, '传说级涨粉', date)
                         pass
-                    elif delta_rate >= 5000:
+                    elif delta_rate >= 5000 or (d_daily >= 100000 and delta_rate > 0):
                         # 日涨粉数超过上日的50倍
                         self.insert_event(delta_rate, d_daily,
                                           author, '史诗级涨粉', date)
                         pass
-                    elif delta_rate >= 1000:
-                        # 日涨粉数超过上日的10倍
+                    elif delta_rate >= 2500:
+                        # 日涨粉数超过上日的25倍
                         self.insert_event(delta_rate, d_daily,
                                           author, '大量涨粉', date)
                         pass
@@ -151,7 +157,9 @@ class FansWatcher(object):
             pass
 
     def watchAllAuthor(self):
-        for each_author in author_coll.find({'data':{'$exists':True}}).batch_size(40):
+        start_date = (datetime.datetime.now() -
+                      datetime.timedelta(1)).timestamp()
+        for each_author in author_coll.find({'data': {'$exists': True}}).batch_size(40):
             self.judge(each_author)
     pass
 
