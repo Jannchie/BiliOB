@@ -59,7 +59,7 @@ class FansWatcher(object):
         fans_variation_coll.replace_one(
             {'mid': out_data['mid'], 'datetime': out_data['datetime']}, out_data, upsert=True)
 
-    def judge(self, author, c_date=None):
+    def judge(self, author):
         '''
             一共有这样几种可能：
                 1、 大量涨粉        日涨粉数超过上周平均的25倍
@@ -85,9 +85,8 @@ class FansWatcher(object):
         # 线性插值
         interrupted_fans = interp1d(x, y, kind='linear')
         temp_date = datetime.datetime.fromtimestamp(start_date)
-        if c_date == None:
-            c_date = datetime.datetime(
-                temp_date.year, temp_date.month, temp_date.day).timestamp() + 86400 * 3
+        c_date = datetime.datetime(
+            temp_date.year, temp_date.month, temp_date.day).timestamp() + 86400 * 3
         if c_date - 86400 * 2 <= start_date:
             return
         while (c_date <= end_date):
@@ -157,8 +156,6 @@ class FansWatcher(object):
             pass
 
     def watchAllAuthor(self):
-        start_date = (datetime.datetime.now() -
-                      datetime.timedelta(1)).timestamp()
         for each_author in author_coll.find({'data': {'$exists': True}}).batch_size(40):
             self.judge(each_author)
     pass
