@@ -94,6 +94,7 @@ class FansWatcher(object):
             daily_array = interrupted_fans([c_date - 86400, c_date])
             p_daily_array = interrupted_fans(
                 [c_date - 86400 * 2, c_date - 86400])
+
             # 24小时前涨粉数
             pd_daily = p_daily_array[1] - p_daily_array[0]
 
@@ -129,19 +130,19 @@ class FansWatcher(object):
                                       author, '大量掉粉', date)
                     pass
 
-                if (c_date >= start_date + 86400 * 8):
+                if (c_date >= start_date + 86400 * 8 and delta_rate > 0):
                     weekly_array = interrupted_fans([
                         c_date - 86400 * 8, c_date - 86400])
                     # 上月平均涨粉数
                     weekly_mean = (weekly_array[1] - weekly_array[0]) / 7
                     # 上周平均涨粉数
                     delta_rate = round(d_daily / weekly_mean * 100, 2)
-                    if delta_rate >= 10000 or (d_daily >= 200000 and delta_rate > 0):
+                    if delta_rate >= 10000 or d_daily >= 200000:
                         # 日涨粉数超过上日的100倍
                         self.insert_event(delta_rate, d_daily,
                                           author, '传说级涨粉', date)
                         pass
-                    elif delta_rate >= 5000 or (d_daily >= 100000 and delta_rate > 0):
+                    elif delta_rate >= 5000 or d_daily >= 100000:
                         # 日涨粉数超过上日的50倍
                         self.insert_event(delta_rate, d_daily,
                                           author, '史诗级涨粉', date)
