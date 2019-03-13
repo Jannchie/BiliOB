@@ -101,7 +101,7 @@ class FansWatcher(object):
             # 每日涨粉数
             d_daily = daily_array[1] - daily_array[0]
 
-            if (d_daily >= 3000 or d_daily <= -2000):
+            if (d_daily >= 5000 or d_daily <= -2000):
 
                 delta_rate = round(d_daily / pd_daily * 100, 2)
                 if (d_daily >= daily_array[1] * 0.20):
@@ -130,7 +130,7 @@ class FansWatcher(object):
                                       author, '大量掉粉', date)
                     pass
 
-                if (c_date >= start_date + 86400 * 8 and delta_rate > 0):
+                if (c_date >= start_date + 86400 * 8 and d_daily > 0):
                     weekly_array = interrupted_fans([
                         c_date - 86400 * 8, c_date - 86400])
                     # 上月平均涨粉数
