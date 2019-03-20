@@ -17,7 +17,13 @@ while True:
         'cFans', direction=DESCENDING).limit(2)
     mids = map(lambda x: x['mid'], docs)
     for mid in mids:
-        j = requests.get(URL.format(mid)).json()
-        fans = j['data']['card']['fans']
-        coll.update_one({'mid': mid}, {'$set': {'cFans': fans}})
+        try:
+            j = requests.get(URL.format(mid)).json()
+            pass
+            fans = j['data']['card']['fans']
+            if fans == 0:
+                continue
+            coll.update_one({'mid': mid}, {'$set': {'cFans': fans}})
+        except Exception as e:
+            pass
     time.sleep(5)
