@@ -14,10 +14,16 @@ coll = db['author']  # 获得collection的句柄
 URL = 'https://api.bilibili.com/x/web-interface/card?mid={}'
 while True:
     docs = coll.find({}, {'mid': 1}).sort(
-        'cFans', direction=DESCENDING).limit(2)
+        'cFans', direction=DESCENDING).limit(3)
     mids = map(lambda x: x['mid'], docs)
     for mid in mids:
-        j = requests.get(URL.format(mid)).json()
-        fans = j['data']['card']['fans']
-        coll.update_one({'mid': mid}, {'$set': {'cFans': fans}})
-    time.sleep(5)
+        try:
+            j = requests.get(URL.format(mid)).json()
+            pass
+            fans = j['data']['card']['fans']
+            if fans == 0:
+                continue
+            coll.update_one({'mid': mid}, {'$set': {'cFans': fans}})
+        except Exception as e:
+            pass
+        time.sleep(3)
