@@ -51,11 +51,16 @@ class DanmakuAggregateSpider(RedisSpider):
     def parse(self, response):
         try:
             j = json.loads(response.body)
+            url_list = response.url.split('&')
+            if len(url_list) == 2:
+                object_id = url_list[1]
+            else:
+                object_id == None
             if j['code'] == -403:
                 aid = response.url[50:]
                 print('https://api.bilibili.com/x/article/archives?ids={}'.format(aid))
                 yield Request('https://api.bilibili.com/x/article/archives?ids={}'.format(aid),
-                              callback=self.getCidPlanB, meta={'aid': aid})
+                              callback=self.getCidPlanB, meta={'aid': aid, 'object_id': object_id})
             else:
                 aid = j['data']['aid']
                 pages = j['data']['pages']
@@ -68,7 +73,7 @@ class DanmakuAggregateSpider(RedisSpider):
                                   meta={'duration': duration,
                                         'p_name': p_name,
                                         'page_number': page_number,
-                                        'aid': aid})
+                                        'aid': aid, 'object_id': object_id})
         except Exception as error:
             # 出现错误时存入出错集合
             self.db['error'].insert_one(
@@ -77,9 +82,10 @@ class DanmakuAggregateSpider(RedisSpider):
     def getCidPlanB(self, response):
         try:
             aid = response.meta['aid']
+            object_id = response.meta['object_id']
             cid = json.loads(response.body)['data'][aid]['cid']
             duration = json.loads(response.body)['data'][aid]['duration']
-            yield Request(self.DANMAKU_API.format(oid=cid), callback=self.parseDanmaku, meta={'duration': duration, 'p_name': '', 'page_number': 1, 'aid': int(aid)})
+            yield Request(self.DANMAKU_API.format(oid=cid), callback=self.parseDanmaku, meta={'object_id': object_id, 'duration': duration, 'p_name': '', 'page_number': 1, 'aid': int(aid)})
         except Exception as error:
             # 出现错误时存入出错集合
             self.db['error'].insert_one(
@@ -109,7 +115,7 @@ class DanmakuAggregateSpider(RedisSpider):
                 index = int(t // tick)
                 danmaku_density[index] += 1
             item = DanmakuAggregateItem()
-
+            item['object_id'] = response.meta['object_id']
             item['aid'] = response.meta['aid']
             item['duration'] = duration
             item['word_frequency'] = word_frequency
