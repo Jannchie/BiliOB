@@ -6,12 +6,43 @@ import time
 from subprocess import Popen
 import logging
 import threading
-from biliob_analyzer.video_rank import computeVideoRank
+from db import redis_connection
+
+import requests
+import redis
+from lxml import etree
+import json
+
+VIDEO_URL = "https://api.bilibili.com/x/article/archives?ids={aid}"
+VIDEO_KEY = "videoRedis:start_urls"
+AUTHOR_URL = "https://api.bilibili.com/x/web-interface/card?mid={mid}"
+AUTHOR_KEY = "authorRedis:start_urls"
+DANMAKU_FROM_AID_URL = "https://api.bilibili.com/x/web-interface/view?aid={aid}"
+DANMAKU_KEY = "DanmakuAggregate:start_urls"
+
+def sendAuthorCrawlRequest(mid):
+    redis_connection.rpush(AUTHOR_KEY, AUTHOR_URL.format(mid=mid))
 
 
-def videoRank():
-    computeVideoRank()
+def sendVideoCrawlRequest(aid):
+    redis_connection.rpush(VIDEO_KEY, VIDEO_URL.format(aid=aid))
 
+
+def crawlOnlineTopListData():
+    ONLINE_URL = 'https://www.bilibili.com/video/online.html'
+    response = requests.get(ONLINE_URL)
+    data_text = etree.HTML(response.content.decode(
+        'utf8')).xpath('//script/text()')[-2]
+    j = json.loads(data_text.lstrip('window.__INITIAL_STATE__=')[:-122])
+    for each_video in j['onlineList']:
+        aid = each_video['aid']
+        mid = each_video['owner']['mid']
+        if mid not in [7584632, 928123]:
+            sendAuthorCrawlRequest(mid)
+        sendVideoCrawlRequest(aid)
+        print(aid)
+        print(mid)
+    pass
 
 def site():
     Popen(["scrapy", "crawl", "site"])
@@ -50,7 +81,7 @@ def online():
 
 
 def strong():
-    Popen(['scrapy', 'crawl', 'strong'])
+    crawlOnlineTopListData()
 
 
 def data_analyze():
@@ -79,11 +110,9 @@ schedule.every().day.at('16:30').do(run_threaded, donghua)
 schedule.every().day.at('22:00').do(run_threaded, video_watcher)
 schedule.every().day.at('21:00').do(run_threaded, bili_monthly_rank)
 schedule.every().week.do(run_threaded, video_spider_all)
-schedule.every().week.do(run_threaded, videoRank)
 schedule.every().hour.do(run_threaded, site)
 schedule.every(15).minutes.do(run_threaded, online)
-schedule.every(10).minutes.do(run_threaded, strong)
-
+schedule.every(1).minutes.do(run_threaded, strong)
 
 print('开始运行计划任务..')
 while True:
