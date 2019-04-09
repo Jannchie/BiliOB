@@ -72,6 +72,7 @@ class VideoAndAuthorItem(scrapy.Item):
 
 
 class VideoItem(scrapy.Item):
+    object_id = scrapy.Field()
     channel = scrapy.Field()
     aid = scrapy.Field()
     datetime = scrapy.Field()
@@ -91,6 +92,7 @@ class VideoItem(scrapy.Item):
 
 
 class AuthorItem(scrapy.Item):
+    object_id = scrapy.Field()
     mid = scrapy.Field()
     name = scrapy.Field()
     face = scrapy.Field()

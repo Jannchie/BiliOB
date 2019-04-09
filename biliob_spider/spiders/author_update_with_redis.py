@@ -71,6 +71,12 @@ class AuthorUpdateWithRedis(RedisSpider):
             item['c_attention'] = int(attention)
             item['c_archive'] = int(archive)
             item['c_article'] = int(article)
+
+            url_list = response.url.split('&')
+            if len(url_list) == 2:
+                item['object_id'] = url_list[1]
+            else:
+                item['object_id'] = None
             yield Request(
                 "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
                     mid=str(mid)),
