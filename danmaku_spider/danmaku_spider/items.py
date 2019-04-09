@@ -15,3 +15,4 @@ class DanmakuAggregateItem(scrapy.Item):
     word_frequency = scrapy.Field()
     danmaku_density = scrapy.Field()
     duration = scrapy.Field()
+    object_id = scrapy.Field()
