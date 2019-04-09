@@ -11,8 +11,14 @@ import sys
 
 import redis
 from pymongo import MongoClient
-
+from bson import ObjectId
 env_dist = os.environ
+
+
+def sentCallBack(object_id, coll):
+    if object_id != None:
+        coll.update_one({'_id': ObjectId(object_id)}, {
+            '$set': {'isExecuted': True}})
 
 
 class DanmakuSpiderPipeline(object):
@@ -39,6 +45,7 @@ class DanmakuSpiderPipeline(object):
                 'danmaku_aggregate.updatetime': datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
             }
         }, True)
-        # 刷新redis数据缓存
-        self.redis_connection.delete(
-            "video_detail::{}".format(item['aid']))
+        sentCallBack(item['object_id'], self.db['user_record'])
+        # # 刷新redis数据缓存
+        # self.redis_connection.delete(
+        #     "video_detail::{}".format(item['aid']))
