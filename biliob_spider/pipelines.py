@@ -11,6 +11,13 @@ import datetime
 import logging
 import redis
 from db import redis_connect_string
+from bson import ObjectId
+
+
+def sentCallBack(object_id, coll):
+    if object_id != None:
+        coll.update_one({'_id': ObjectId(object_id)}, {
+            '$set': {'isExecuted': True}})
 
 
 class StrongPipeline(object):
@@ -103,6 +110,7 @@ class VideoPipeline(object):
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
+        
 
     def process_item(self, item, spider):
         try:
@@ -133,8 +141,9 @@ class VideoPipeline(object):
                     }
                 }
             }, True)
-            self.redis_connection.delete(
-                "video_detail::{}".format(item['aid']))
+            sentCallBack(item['object_id'], self.db['user_record'])
+            # self.redis_connection.delete(
+            #     "video_detail::{}".format(item['aid']))
             return item
         except Exception as error:
             # 出现错误时打印错误日志
@@ -309,8 +318,9 @@ class AuthorPipeline(object):
                     }
                 }
             }, True)
-            self.redis_connection.delete(
-                "author_detail::{}".format(item['mid']))
+            sentCallBack(item['object_id'], self.db['user_record'])
+            # self.redis_connection.delete(
+            #     "author_detail::{}".format(item['mid']))
             return item
         except Exception as error:
             # 出现错误时打印错误日志

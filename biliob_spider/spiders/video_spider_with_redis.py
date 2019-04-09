@@ -35,6 +35,7 @@ class VideoSpiderWithRedis(RedisSpider):
 
     def parse(self, response):
         try:
+
             r = json.loads(response.body)
             d = r["data"]
             keys = list(d.keys())
@@ -93,6 +94,12 @@ class VideoSpiderWithRedis(RedisSpider):
                         item['channel'] == '娱乐'
                 else:
                     item['channel'] = None
+
+                url_list = response.url.split('&')
+                if len(url_list) == 2:
+                    item['object_id'] = url_list[1]
+                else:
+                    item['object_id'] = None
                 yield item
 
         except Exception as error:
