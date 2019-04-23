@@ -19,7 +19,7 @@ def dateRange(beginDate, endDate):
 
 
 class FansWatcher(object):
-    def insert_event(self, delta_rate, d_daily, author, info, date):
+    def __insert_event(self, delta_rate, d_daily, author, info, date):
         print('变化率：{}% \n单日涨幅：{} \nUP主：{} \n信息：{}\n日期：{}\n\n'.format(
             delta_rate, d_daily, author['name'], info, date))
 
@@ -59,7 +59,7 @@ class FansWatcher(object):
         fans_variation_coll.replace_one(
             {'mid': out_data['mid'], 'datetime': out_data['datetime']}, out_data, upsert=True)
 
-    def judge(self, author):
+    def __judge(self, author):
         '''
             一共有这样几种可能：
                 1、 大量涨粉        日涨粉数超过上周平均的25倍
@@ -104,30 +104,30 @@ class FansWatcher(object):
             if (d_daily >= 5000 or d_daily <= -2000):
 
                 delta_rate = round(d_daily / pd_daily * 100, 2)
-                if (d_daily >= daily_array[1] * 0.20):
-                    self.insert_event(round(d_daily/daily_array[1]*100, 2), d_daily,
-                                      author, '新星爆发', date)
+                if (d_daily >= daily_array[1] * 0.50):
+                    self.__insert_event(round(d_daily/daily_array[1]*100, 2), d_daily,
+                                        author, '新星爆发', date)
 
                 if (d_daily <= 0 and pd_daily >= 0):
-                    self.insert_event('-', d_daily,
-                                      author, '急转直下', date)
+                    self.__insert_event('-', d_daily,
+                                        author, '急转直下', date)
                     c_date += 86400
                     continue
 
                 if (d_daily <= -50000):
                     # 每日掉粉数突破5K
-                    self.insert_event(delta_rate, d_daily,
-                                      author, '末日级掉粉', date)
+                    self.__insert_event(delta_rate, d_daily,
+                                        author, '末日级掉粉', date)
                     pass
                 elif (d_daily <= -20000):
                     # 每日掉粉数突破2W
-                    self.insert_event(delta_rate, d_daily,
-                                      author, '雪崩级掉粉', date)
+                    self.__insert_event(delta_rate, d_daily,
+                                        author, '雪崩级掉粉', date)
                     pass
                 elif (d_daily <= -5000):
                     # 每日掉粉数突破5W
-                    self.insert_event(delta_rate, d_daily,
-                                      author, '大量掉粉', date)
+                    self.__insert_event(delta_rate, d_daily,
+                                        author, '大量掉粉', date)
                     pass
 
                 if (c_date >= start_date + 86400 * 8 and d_daily > 0):
@@ -139,27 +139,36 @@ class FansWatcher(object):
                     delta_rate = round(d_daily / weekly_mean * 100, 2)
                     if delta_rate >= 10000 or d_daily >= 200000:
                         # 日涨粉数超过上日的100倍
-                        self.insert_event(delta_rate, d_daily,
-                                          author, '传说级涨粉', date)
+                        self.__insert_event(delta_rate, d_daily,
+                                            author, '传说级涨粉', date)
                         pass
                     elif delta_rate >= 5000 or d_daily >= 100000:
                         # 日涨粉数超过上日的50倍
-                        self.insert_event(delta_rate, d_daily,
-                                          author, '史诗级涨粉', date)
+                        self.__insert_event(delta_rate, d_daily,
+                                            author, '史诗级涨粉', date)
                         pass
                     elif delta_rate >= 2500:
                         # 日涨粉数超过上日的25倍
-                        self.insert_event(delta_rate, d_daily,
-                                          author, '大量涨粉', date)
+                        self.__insert_event(delta_rate, d_daily,
+                                            author, '大量涨粉', date)
                         pass
 
             c_date += 86400
             pass
 
     def watchAllAuthor(self):
-        for each_author in author_coll.find({'data': {'$exists': True}}).batch_size(40):
-            self.judge(each_author)
+        author_filter = {'data': {'$exists': True}}
+        self.__judge_author(author_filter)
+
+    def watchBigAuthor(self):
+        author_filter = {'data': {'$exists': True}, 'cFans': {'$gt': 10000}}
+        self.__judge_author(author_filter)
+
+    def __judge_author(self, author_filter):
+        for each_author in author_coll.find(author_filter).batch_size(40):
+            self.__judge(each_author)
     pass
 
 
-FansWatcher().watchAllAuthor()
+FansWatcher().watchBigAuthor()
+a = FansWatcher()
