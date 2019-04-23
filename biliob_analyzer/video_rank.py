@@ -10,6 +10,40 @@ def format_p_rank(i, count):
     return round(i / count * 100, 2)
 
 
+def computeVideoRankTable():
+    o = {}
+    coll = db['video']  # 获得collection的句柄
+    # logging.basicConfig(level=logging.INFO,
+    #                     format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
+    # logger = logging.getLogger(__name__)
+    # logger.info("开始计算视频数据排名对照表")
+    keys = ['cView', 'cLike', 'cDanmaku', 'cFavorite', 'cCoin', 'cShare']
+    # count = coll.count_documents({})
+    count = 330870
+    skip = int(count / 100)
+    for each_key in keys:
+        o[each_key] = []
+        o[each_key+'Top'] = []
+        i = 1
+        last_value = 9999999999
+        # logger.info("开始计算视频{}排名对照表".format(each_key))
+        video = coll.find({}, {
+            'title': 1}).limit(200).sort(each_key, DESCENDING)
+        for each_video in video:
+            o[each_key+'Top'].append(each_video['title'])
+            pass
+        while i <= 80:
+            video = next(coll.find({each_key: {'$lt': last_value}}, {
+                each_key: 1}).skip(skip).limit(1).sort(each_key, DESCENDING))
+            if each_key not in video:
+                break
+            last_value = video[each_key]
+            o[each_key].append(last_value)
+            i += 1
+        print(o)
+        pass
+
+
 def computeVideoRank():
     coll = db['video']  # 获得collection的句柄
 
@@ -30,7 +64,7 @@ def computeVideoRank():
         each_rank = each_key + 'Rank'
         each_d_rank = 'd' + each_key[1:] + 'Rank'
         each_p_rank = 'p' + each_key[1:] + 'Rank'
-        count = coll.count_documents({each_key: {'$exists': 1}})
+        count = coll.count_documents({})
 
         for each_video in videos:
             logger.info("[aid]{}".format(each_video['aid']))
