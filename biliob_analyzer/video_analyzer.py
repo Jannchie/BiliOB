@@ -28,7 +28,7 @@ class VideoAnalyzer(object):
         count_delete = 0
         count_unfocus = 0
         count_focus = 0
-        for each_doc in self.coll.find({'focus': True}):
+        for each_doc in self.coll.find({'focus': True, 'cView': {'lt': 100000}}):
             live_time = 0
             delete = False
             focus = True
