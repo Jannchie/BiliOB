@@ -17,7 +17,7 @@ def format_p_rank(i, count):
 for each_key in ['cFans', 'cArchive_view', 'cArticle_view']:
     logger.info("开始计算作者{}排名".format(each_key))
     i = 1
-    count = coll.find().count()
+    count = coll.count_documents({})
     authors = coll.find({each_key: {'$exists': 1}}, {'mid': 1, 'rank': 1, each_key: 1}).batch_size(
         300).sort(each_key, DESCENDING)
     if each_key == 'cFans':
