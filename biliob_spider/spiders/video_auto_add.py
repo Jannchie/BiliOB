@@ -11,6 +11,8 @@ import datetime
 from db import settings
 from scrapy_redis.spiders import RedisSpider
 
+from biliob_tracer.task import ExistsTask
+
 
 class VideoAutoAddSpider(RedisSpider):
     name = "videoAutoAdd"
@@ -32,6 +34,7 @@ class VideoAutoAddSpider(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
+        ExistsTask('video-auto-add-spider', collection=self.db['test'])
 
     def parse(self, response):
         try:

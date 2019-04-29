@@ -7,6 +7,7 @@ import time
 import datetime
 import json
 from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import ExistsTask
 
 
 class BangumiAndDonghuaSpider(RedisSpider):
