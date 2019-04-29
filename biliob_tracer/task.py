@@ -5,6 +5,16 @@ from time import sleep
 import socket
 
 
+class STATUS():
+    START = 1
+    UPDATE = 2
+    DEAD = 4
+    ALIVE = 5
+    WARNING = 6
+    TIMEOUT = 8
+    FINISED = 9
+
+
 class Task(object):
 
     def get_computer_name(self):
@@ -31,13 +41,12 @@ class Task(object):
 
     def start_task(self):
         data = self.get_start_data()
-        start_result = merge_dicts(
-            self.base_result, {
-                'type': 'start', 'time': self.start_time}, {'data': data})
+        start_result = self.merge_result(
+            self.base_result, data)
         self.send_result(start_result)
 
     def get_start_data(self):
-        return {'status': 1, 'msg': 'STARTED'}
+        return {'status': STATUS.START, 'msg': '开始追踪任务'}
 
     def set_finished(self):
         if (datetime.now() - self.start_time).seconds >= self.timeout:
@@ -52,24 +61,24 @@ class Task(object):
 
     def get_update_result(self):
         data = self.get_update_data()
-        r = merge_dicts(self.base_result, {
-                        'type': 'update', 'time': datetime.now()}, {'data': data})
+        r = self.merge_result(self.base_result, {
+            'update_time': datetime.now()}, data)
         return r
 
     def get_update_data(self):
-        return {'status': 1, 'msg': 'EXECUTING'}
+        return {'status': STATUS.UPDATE, 'msg': '更新追踪任务'}
 
     def finish_task(self):
         self.send_result(self.get_finish_result())
 
     def get_finish_result(self):
         data = self.get_finish_data()
-        r = merge_dicts(self.base_result, {
-                        'type': 'finish', 'time': datetime.now()}, {'data': data})
+        r = self.merge_result(
+            self.base_result, {'update_time': datetime.now()}, data)
         return r
 
     def get_finish_data(self):
-        return {'status': -1, 'msg': 'TIMEOUT'}
+        return {'status': STATUS.TIMEOUT, 'msg': '预定时间内未收到更新信号，确认失联。'}
 
     def send_result(self, result):
         if result != {}:
@@ -79,6 +88,15 @@ class Task(object):
         if self.collection != None:
             self.collection.update_one(
                 self.base_result, {'$set': result}, True)
+        else:
+            print(result)
+
+    def merge_result(self, *dicts):
+        result = {}
+        for each_dict in dicts:
+            for each_kw in each_dict:
+                result[each_kw] = each_dict[each_kw]
+        return result
 
 
 class ExistsTask(Task):
@@ -89,7 +107,7 @@ class ExistsTask(Task):
         return False
 
     def get_update_data(self):
-        return {'status': 1, 'msg': 'ALIVE'}
+        return {'status': STATUS.ALIVE, 'msg': '任务正常执行中'}
 
 
 class ProgressTask(Task):
@@ -98,11 +116,9 @@ class ProgressTask(Task):
         self.total_value = total_value
         self.current_value = 0
         super().__init__(task_name, update_frequency, 0, collection)
-        self.base_result = merge_dicts(
-            self.base_result, {'total_value': self.total_value})
 
     def get_start_data(self):
-        return {'status': 1, 'msg': 'STARTED'}
+        return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value}
 
     def set_finished(self):
         if self.current_value == self.total_value:
@@ -111,18 +127,7 @@ class ProgressTask(Task):
             return False
 
     def get_update_data(self):
-        return {'status': 1, 'msg': 'PROCESSING', 'value': self.current_value}
+        return {'status': STATUS.UPDATE, 'msg': '计划任务执行中', 'current_value': self.current_value}
 
     def get_finish_data(self):
-        return {'status': 1, 'msg': 'COMPLETE'}
-
-
-def merge_dicts(*dict_args):
-    """
-    Given any number of dicts, shallow copy and merge into a new dict,
-    precedence goes to key value pairs in latter dicts.
-    """
-    result = {}
-    for dictionary in dict_args:
-        result.update(dictionary)
-    return result
+        return {'status': STATUS.FINISED, 'msg': '计划任务已完成'}
