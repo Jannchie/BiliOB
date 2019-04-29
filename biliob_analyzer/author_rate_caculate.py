@@ -9,6 +9,29 @@ logger = logging.getLogger(__name__)
 
 coll = db['author']  # 获得collection的句柄
 logger.info('开始计算粉丝增速')
+
+ag = coll.aggregate([
+    # {
+    #     '$match': {
+    #         'mid': 1850091
+    #     }
+    # },
+    {
+        '$project': {
+            'mid': 1,
+            'data': {
+                "$filter": {
+                    "input": "$data",
+                    "as": "each_data",
+                    "cond": {
+                        "$gt": ["$$each_data.datetime", datetime.datetime(2019, 4, 10)]
+                    }
+                }
+            }
+        }
+    }
+]).batch_size(1)
+
 for each_author in coll.find().batch_size(8):
     rate = []
     i = 0
@@ -101,14 +124,14 @@ for each_author in coll.find().batch_size(8):
             c_fans = t_fans
             c_date = t_date
             days -= 1
-    coll.update_one({
-        'mid': each_author['mid']
-    }, {'$push': {
-        'fansRate': {
-            '$each': rate,
-            '$position': 0
-        }
-    }}, True)
+    # coll.update_one({
+    #     'mid': each_author['mid']
+    # }, {'$push': {
+    #     'fansRate': {
+    #         '$each': rate,
+    #         '$position': 0
+    #     }
+    # }}, True)
     if len(rate) != 0:
         coll.update_one({
             'mid': each_author['mid']

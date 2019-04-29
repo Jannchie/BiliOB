@@ -9,6 +9,8 @@ import logging
 from pymongo import MongoClient
 import datetime
 from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import ExistsTask
+from db import db
 
 
 class AuthorAutoAddSpider(RedisSpider):
@@ -21,6 +23,9 @@ class AuthorAutoAddSpider(RedisSpider):
         },
         'DOWNLOAD_DELAY': 10
     }
+
+    def __init__(self):
+        ExistsTask('author-auto-add-spider', collection=db['test'])
 
     def parse(self, response):
         try:
