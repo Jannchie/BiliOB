@@ -9,8 +9,10 @@ import logging
 from pymongo import MongoClient
 import datetime
 
+from scrapy_redis.spiders import RedisSpider
 
-class OnlineSpider(scrapy.spiders.Spider):
+
+class OnlineSpider(RedisSpider):
     name = "site"
     allowed_domains = ["bilibili.com"]
     start_urls = ['https://api.bilibili.com/x/web-interface/online']

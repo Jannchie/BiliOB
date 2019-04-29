@@ -110,7 +110,6 @@ class VideoPipeline(object):
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
-        
 
     def process_item(self, item, spider):
         try:
@@ -141,7 +140,8 @@ class VideoPipeline(object):
                     }
                 }
             }, True)
-            sentCallBack(item['object_id'], self.db['user_record'])
+            if 'object_id' in item:
+                sentCallBack(item['object_id'], self.db['user_record'])
             # self.redis_connection.delete(
             #     "video_detail::{}".format(item['aid']))
             return item
@@ -177,6 +177,41 @@ class VideoPipelineFromKan(object):
                         '$each': [item['data']],
                         '$position': 0
                     }
+                }
+            }, True)
+            return item
+        except Exception as error:
+            # 出现错误时打印错误日志
+            logging.error('{}: {}'.format(spider.name, error))
+
+
+class BangumiAndDonghuaPipeLine(object):
+    def __init__(self):
+        # 链接mongoDB
+        self.client = MongoClient(settings['MINGO_HOST'], 27017)
+        # 数据库登录需要帐号密码
+        self.client.admin.authenticate(settings['MINGO_USER'],
+                                       settings['MONGO_PSW'])
+        self.db = self.client['biliob']  # 获得数据库的句柄
+
+    def process_item(self, item, spider):
+        try:
+            self.coll = self.db[item['collection']]  # 获得collection的句柄
+            self.coll.update_one({
+                'title': item['title']
+            }, {
+                '$set': {
+                    'title': item['title'],
+                    'cover': item['cover'],
+                    'newest': item['newest_ep_index'],
+                    'currentPts': item['data']['pts'],
+                    'currentPlay': item['data']['play'],
+                    'currentWatch': item['data']['watch'],
+                    'currentReview': item['data']['review'],
+                    'currentDanmaku': item['data']['danmaku']
+                },
+                '$addToSet': {
+                    'data': item['data']
                 }
             }, True)
             return item
@@ -318,7 +353,8 @@ class AuthorPipeline(object):
                     }
                 }
             }, True)
-            sentCallBack(item['object_id'], self.db['user_record'])
+            if 'object_id' in item:
+                sentCallBack(item['object_id'], self.db['user_record'])
             # self.redis_connection.delete(
             #     "author_detail::{}".format(item['mid']))
             return item

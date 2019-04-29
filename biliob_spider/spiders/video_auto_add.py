@@ -9,10 +9,11 @@ import logging
 from pymongo import MongoClient
 import datetime
 from db import settings
+from scrapy_redis.spiders import RedisSpider
 
 
-class VideoWatch(scrapy.spiders.Spider):
-    name = "videoWatcher"
+class VideoAutoAddSpider(RedisSpider):
+    name = "videoAutoAdd"
     allowed_domains = ["bilibili.com"]
     start_urls = []
     custom_settings = {
@@ -31,15 +32,6 @@ class VideoWatch(scrapy.spiders.Spider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
-
-    def start_requests(self):
-        c = self.coll.find(
-            {'$or': [{'focus': True}, {'forceFocus': True}]}, {'mid': 1})
-        for each_doc in c:
-            yield Request(
-                'https://space.bilibili.com/ajax/member/getSubmitVideos?mid=' +
-                str(each_doc['mid']) + '&pagesize=10&page=1&order=pubdate',
-                method='GET')
 
     def parse(self, response):
         try:
