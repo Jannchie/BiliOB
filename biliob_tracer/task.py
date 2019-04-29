@@ -50,7 +50,7 @@ class Task(object):
         return r
 
     def get_update_data(self):
-        return {'status':1}
+        return {'status':1,'msg':'EXECUTING'}
 
     def finish_task(self):
         self.send_result(self.get_finish_result())
@@ -61,7 +61,7 @@ class Task(object):
         return r
         
     def get_finish_data(self):
-        return {'status':-1,'msg':'timeout'}
+        return {'status':-1,'msg':'TIMEOUT'}
 
     def send_result(self, result):
         if result != {}:
@@ -70,6 +70,15 @@ class Task(object):
     def output_result(self, result):
         print(result)
 
+class ExistsTask(Task):
+    def __init__(self, task_name, update_frequency=5):
+        super().__init__(task_name, update_frequency)
+
+    def set_finished(self):
+        return False
+    
+    def get_update_data(self):
+        return {'status': 1, 'msg': 'ALIVE'}
 
 def merge_dicts(*dict_args):
     """
