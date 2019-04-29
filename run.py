@@ -29,6 +29,14 @@ def sendVideoCrawlRequest(aid):
     redis_connection.rpush(VIDEO_KEY, VIDEO_URL.format(aid=aid))
 
 
+def priorityAuthorCrawlRequest(mid):
+    redis_connection.lpush(AUTHOR_KEY, AUTHOR_URL.format(mid=mid))
+
+
+def priorityVideoCrawlRequest(aid):
+    redis_connection.lpush(VIDEO_KEY, VIDEO_URL.format(aid=aid))
+
+
 def crawlOnlineTopListData():
     ONLINE_URL = 'https://www.bilibili.com/video/online.html'
     response = requests.get(ONLINE_URL)
@@ -39,8 +47,8 @@ def crawlOnlineTopListData():
         aid = each_video['aid']
         mid = each_video['owner']['mid']
         if mid not in [7584632, 928123]:
-            sendAuthorCrawlRequest(mid)
-        sendVideoCrawlRequest(aid)
+            priorityAuthorCrawlRequest(mid)
+        priorityVideoCrawlRequest(aid)
         print(aid)
         print(mid)
     pass
