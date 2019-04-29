@@ -20,6 +20,7 @@ AUTHOR_KEY = "authorRedis:start_urls"
 DANMAKU_FROM_AID_URL = "https://api.bilibili.com/x/web-interface/view?aid={aid}"
 DANMAKU_KEY = "DanmakuAggregate:start_urls"
 
+
 def sendAuthorCrawlRequest(mid):
     redis_connection.rpush(AUTHOR_KEY, AUTHOR_URL.format(mid=mid))
 
@@ -43,6 +44,7 @@ def crawlOnlineTopListData():
         print(aid)
         print(mid)
     pass
+
 
 def site():
     Popen(["scrapy", "crawl", "site"])
