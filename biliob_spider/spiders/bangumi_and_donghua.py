@@ -2,19 +2,20 @@
 import scrapy
 from mail import mailer
 from scrapy.http import Request
-from biliob_spider.items import BangumiItem
+from biliob_spider.items import BangumiOrDonghuaItem
 import time
 import datetime
 import json
+from scrapy_redis.spiders import RedisSpider
 
 
-class BangumiSpider(scrapy.spiders.Spider):
-    name = "bangumi"
+class BangumiAndDonghuaSpider(RedisSpider):
+    name = "bangumiAndDonghua"
     allowed_domains = ["bilibili.com"]
-    start_urls = ["https://www.bilibili.com/ranking/bangumi/13/0/7"]
+    start_urls = []
     custom_settings = {
         'ITEM_PIPELINES': {
-            'biliob_spider.pipelines.BangumiPipeLine': 200
+            'biliob_spider.pipelines.BangumiAndDonghuaPipeLine': 200
         }
     }
 
@@ -23,7 +24,7 @@ class BangumiSpider(scrapy.spiders.Spider):
             j = json.loads(response.xpath(
                 "//script[3]/text()").extract()[0][len('window.__INITIAL_STATE__='):].split(';')[0])
             for each in j['rankList']:
-                item = BangumiItem()
+                item = BangumiOrDonghuaItem()
                 item['title'] = each['title']
                 item['cover'] = each['cover']
                 # item['square_cover'] = each['square_cover']
@@ -38,6 +39,11 @@ class BangumiSpider(scrapy.spiders.Spider):
                     'review': each['video_review'],
                     'datetime': datetime.datetime.now()
                 }
+
+                if response.url == 'https://www.bilibili.com/ranking/bangumi/13/0/7':
+                    item['collection'] = 'bangumi'
+                elif response.url == 'https://www.bilibili.com/ranking/bangumi/167/0/7':
+                    item['collection'] = 'donghua'
                 yield item
         except Exception as error:
             # 出现错误时打印错误日志
