@@ -35,6 +35,18 @@ class BangumiItem(scrapy.Item):
     data = scrapy.Field()
 
 
+class BangumiOrDonghuaItem(scrapy.Item):
+    title = scrapy.Field()
+    tag = scrapy.Field()
+    cover = scrapy.Field()
+    square_cover = scrapy.Field()
+    is_finish = scrapy.Field()
+    is_started = scrapy.Field()
+    newest_ep_index = scrapy.Field()
+    data = scrapy.Field()
+    collection = scrapy.Field()
+
+
 class VideoAndAuthorItem(scrapy.Item):
     mid = scrapy.Field()
     name = scrapy.Field()
