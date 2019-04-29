@@ -10,6 +10,8 @@ from pymongo import MongoClient
 import datetime
 
 from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import ExistsTask
+from db import db
 
 
 class OnlineSpider(RedisSpider):
@@ -22,8 +24,12 @@ class OnlineSpider(RedisSpider):
         }
     }
 
+    def __init__(self):
+        ExistsTask('site', collection=db['test'])
+
     def parse(self, response):
         try:
+
             r = json.loads(response.body)
             d = r["data"]
             item = SiteItem()
