@@ -2,14 +2,15 @@ from datetime import datetime
 import threading
 from time import sleep
 
-import os
+import socket
 
 
 class Task(object):
 
     def get_computer_name(self):
         # 获取计算机名
-        return os.environ['COMPUTERNAME']
+        hostname = socket.gethostname()
+        return hostname
 
     def __init__(self, task_name, update_frequency=5, timeout=60, collection=None):
         self.collection = collection
@@ -97,9 +98,11 @@ class ProgressTask(Task):
         self.total_value = total_value
         self.current_value = 0
         super().__init__(task_name, update_frequency, 0, collection)
+        self.base_result = merge_dicts(
+            self.base_result, {'total_value': self.total_value})
 
     def get_start_data(self):
-        return {'status': 1, 'msg': 'STARTED', 'total_value': self.total_value}
+        return {'status': 1, 'msg': 'STARTED'}
 
     def set_finished(self):
         if self.current_value == self.total_value:
