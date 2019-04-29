@@ -28,7 +28,8 @@ class Task(object):
 
     def start_task(self):
         start_result = merge_dicts(
-            self.base_result, {'start_time': self.start_time})
+            self.base_result, {
+                'type': 'start', 'time': self.start_time})
         self.send_result(start_result)
 
     def set_finished(self):
@@ -42,17 +43,25 @@ class Task(object):
             self.send_result(self.get_update_result())
         self.send_result(self.get_finish_result())
 
-    def get_update_result(self, data={}):
+    def get_update_result(self):
+        data = self.get_update_data()
         r = merge_dicts(self.base_result, {
-                        'update_time': datetime.now()}, {'data': data})
+                        'type': 'update', 'time': datetime.now()}, {'data': data})
         return r
+
+    def get_update_data(self):
+        return {'status':1}
 
     def finish_task(self):
         self.send_result(self.get_finish_result())
 
-    def get_finish_result(self, data={}):
-        r = merge_dicts(self.base_result, {'finish_time': datetime.now()},{'data':data})
+    def get_finish_result(self):
+        data = self.get_finish_data()
+        r = merge_dicts(self.base_result, {'type':'finish','time': datetime.now()},{'data':data})
         return r
+        
+    def get_finish_data(self):
+        return {'status':-1,'msg':'timeout'}
 
     def send_result(self, result):
         if result != {}:
