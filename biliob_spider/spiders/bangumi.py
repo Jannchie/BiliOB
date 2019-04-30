@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 import scrapy
 from mail import mailer
 from scrapy.http import Request
@@ -20,7 +20,8 @@ class BangumiSpider(scrapy.spiders.Spider):
 
     def parse(self, response):
         try:
-            j = json.loads(response.xpath("//script[3]/text()").extract()[0][len('window.__INITIAL_STATE__='):].split(';')[0])
+            j = json.loads(response.xpath(
+                "//script[3]/text()").extract()[0][len('window.__INITIAL_STATE__='):].split(';')[0])
             for each in j['rankList']:
                 item = BangumiItem()
                 item['title'] = each['title']
@@ -45,5 +46,3 @@ class BangumiSpider(scrapy.spiders.Spider):
                 subject="BiliobSpiderError",
                 body="{}\n{}".format(response.url, error),
             )
-
-

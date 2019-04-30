@@ -9,8 +9,12 @@ import logging
 from pymongo import MongoClient
 import datetime
 
+from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import ExistsTask
+from db import db
 
-class OnlineSpider(scrapy.spiders.Spider):
+
+class OnlineSpider(RedisSpider):
     name = "site"
     allowed_domains = ["bilibili.com"]
     start_urls = ['https://api.bilibili.com/x/web-interface/online']
@@ -20,8 +24,12 @@ class OnlineSpider(scrapy.spiders.Spider):
         }
     }
 
+    def __init__(self):
+        ExistsTask('全站信息爬虫', collection=db['tracer'])
+
     def parse(self, response):
         try:
+
             r = json.loads(response.body)
             d = r["data"]
             item = SiteItem()
