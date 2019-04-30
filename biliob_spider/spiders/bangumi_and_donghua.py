@@ -8,6 +8,7 @@ import datetime
 import json
 from scrapy_redis.spiders import RedisSpider
 from biliob_tracer.task import ExistsTask
+from db import db
 
 
 class BangumiAndDonghuaSpider(RedisSpider):
@@ -19,6 +20,9 @@ class BangumiAndDonghuaSpider(RedisSpider):
             'biliob_spider.pipelines.BangumiAndDonghuaPipeLine': 200
         }
     }
+
+    def __init__(self):
+        ExistsTask("番剧动画爬虫", collection=db['tracer'])
 
     def parse(self, response):
         try:

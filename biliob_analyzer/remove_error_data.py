@@ -22,7 +22,7 @@ def remove_error_data():
         c_datetime.year, c_datetime.month, c_datetime.day) - datetime.timedelta(2)).timestamp()
 
     # task = ProgressTask("计算粉丝增速", coll.count_documents({}),
-    #                     collection=db['test'])
+    #                     collection=db['tracer'])
 
     c = 0
     for each in coll.find({}, {'mid': 1, '_id': 0}).batch_size(200):

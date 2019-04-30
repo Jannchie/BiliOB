@@ -25,7 +25,7 @@ class AuthorAutoAddSpider(RedisSpider):
     }
 
     def __init__(self):
-        ExistsTask('author-auto-add-spider', collection=db['test'])
+        ExistsTask('活跃作者自动追加爬虫', collection=db['tracer'])
 
     def parse(self, response):
         try:
