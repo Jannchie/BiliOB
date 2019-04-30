@@ -34,7 +34,7 @@ class VideoAutoAddSpider(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
-        ExistsTask('video-auto-add-spider', collection=self.db['test'])
+        ExistsTask('观测UP主的视频数据自动追加爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:

@@ -33,7 +33,7 @@ class VideoSpiderWithRedis(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
-        ExistsTask('video-spider', collection=self.db['test'])
+        ExistsTask('视频数据更新爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:
