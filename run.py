@@ -102,8 +102,8 @@ def data_analyze():
 #     Popen(['python', 'run_weekly_analyzer.py'])
 
 
-def bili_monthly_rank():
-    Popen(['scrapy', 'crawl', 'biliMonthlyRank'])
+# def bili_monthly_rank():
+#     Popen(['scrapy', 'crawl', 'biliMonthlyRank'])
 
 
 def run_threaded(job_func):
@@ -112,17 +112,6 @@ def run_threaded(job_func):
 
 
 schedule.every().day.at('11:40').do(run_threaded, data_analyze)
-schedule.every().day.at('01:00').do(run_threaded, update_author)
-schedule.every().day.at('07:00').do(run_threaded, video_spider)
-schedule.every().day.at('14:00').do(run_threaded, auto_add_author)
-schedule.every().day.at('16:50').do(run_threaded, bangumi)
-schedule.every().day.at('16:30').do(run_threaded, donghua)
-schedule.every().day.at('22:00').do(run_threaded, video_watcher)
-schedule.every().day.at('21:00').do(run_threaded, bili_monthly_rank)
-schedule.every().week.do(run_threaded, video_spider_all)
-schedule.every().hour.do(run_threaded, site)
-schedule.every(15).minutes.do(run_threaded, online)
-schedule.every(1).minutes.do(run_threaded, strong)
 
 print('开始运行计划任务..')
 while True:
