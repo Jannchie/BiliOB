@@ -25,7 +25,7 @@ class OnlineSpider(RedisSpider):
     }
 
     def __init__(self):
-        ExistsTask('site', collection=db['test'])
+        ExistsTask('全站信息爬虫', collection=db['tracer'])
 
     def parse(self, response):
         try:

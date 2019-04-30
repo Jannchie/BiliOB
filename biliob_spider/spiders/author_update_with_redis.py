@@ -35,7 +35,7 @@ class AuthorUpdateWithRedis(RedisSpider):
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
-        ExistsTask('author-spider', collection=self.db['test'])
+        ExistsTask('作者数据更新爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:
