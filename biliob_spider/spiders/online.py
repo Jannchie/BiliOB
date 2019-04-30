@@ -8,9 +8,12 @@ import json
 import logging
 from pymongo import MongoClient
 import datetime
+from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import ExistsTask
+from db import db
 
 
-class OnlineSpider(scrapy.spiders.Spider):
+class OnlineSpider(RedisSpider):
     name = "online"
     allowed_domains = ["bilibili.com"]
     start_urls = ['https://www.bilibili.com/video/online.html']
@@ -19,6 +22,9 @@ class OnlineSpider(scrapy.spiders.Spider):
             'biliob_spider.pipelines.OnlinePipeline': 300
         }
     }
+
+    def __init__(self):
+        ExistsTask('同时在线人数爬虫', collection=db['tracer'])
 
     def parse(self, response):
         try:

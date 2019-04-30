@@ -2,10 +2,10 @@ from scipy.interpolate import interp1d
 import logging
 import datetime
 from db import db
-from biliob_tracer.task import ProgressTask
+# from biliob_tracer.task import ProgressTask
 
 
-def author_fans_rate_caculate():
+def remove_error_data():
 
     logging.basicConfig(level=logging.INFO,
                         format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
@@ -21,13 +21,13 @@ def author_fans_rate_caculate():
     start_date = (datetime.datetime(
         c_datetime.year, c_datetime.month, c_datetime.day) - datetime.timedelta(2)).timestamp()
 
-    task = ProgressTask("计算粉丝增速", coll.count_documents({}),
-                        collection=db['tracer'])
+    # task = ProgressTask("计算粉丝增速", coll.count_documents({}),
+    #                     collection=db['tracer'])
 
     c = 0
     for each in coll.find({}, {'mid': 1, '_id': 0}).batch_size(200):
         c += 1
-        task.current_value = c
+        # task.current_value = c
         ag = coll.aggregate([
             {
                 '$match': {
@@ -42,7 +42,7 @@ def author_fans_rate_caculate():
                             "input": "$data",
                             "as": "each_data",
                             "cond": {
-                                "$gt": ["$$each_data.datetime", datetime.datetime.now() - datetime.timedelta(7)]
+                                "$eq": ["$$each_data.fans", 0]
                             }
                         }
                     }
@@ -50,18 +50,14 @@ def author_fans_rate_caculate():
             }
         ]).batch_size(1)
         each_author = next(ag)
-        if 'data' in each_author and each_author['data'] != None:
-            data = sorted(each_author['data'], key=lambda x: x['datetime'])
-            if len(data) >= 2:
-                logger.info(each_author['mid'])
-                x = tuple(map(lambda x: x['datetime'].timestamp(), data))
-                y = tuple(map(lambda x: x['fans'], data))
-                inter_fun = interp1d(x, y, kind='linear')
-                if start_date > x[0] and end_date < x[-1]:
-                    inter_data = inter_fun([start_date, end_date])
-                    delta_fans = inter_data[1] - inter_data[0]
-                    coll.update_one({'mid': each_author['mid']}, {
-                        "$set": {
-                            'cRate': int(delta_fans)
-                        }
-                    })
+
+        if each_author['data'] != None and len(each_author['data']) != 0:
+            coll.update(
+                {'mid': each_author['mid']},
+                {'$pull': {"data": {'fans': 0}}}
+            )
+            logger.info(each_author['mid'])
+            pass
+
+
+remove_error_data()

@@ -19,8 +19,8 @@ SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
 
 REDIS_URL = redis_connect_string
 
-LOG_FILE = "biliob_spider.log"
-LOG_LEVEL = "WARNING"
+# LOG_FILE = "biliob_spider.log"
+# LOG_LEVEL = "WARNING"
 
 BOT_NAME = 'biliob_spider'
 
