@@ -121,7 +121,7 @@ class ProgressTask(Task):
         return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value}
 
     def set_finished(self):
-        if self.current_value == self.total_value:
+        if self.current_value >= self.total_value:
             return True
         else:
             return False

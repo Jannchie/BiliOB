@@ -1,4 +1,3 @@
-source ~/biliob-spider-env/bin/activate
 ps -ef | grep authorRedis | grep -v grep | cut -c 9-15 | xargs kill -9
 ps -ef | grep videoRedis | grep -v grep | cut -c 9-15 | xargs kill -9
 ps -ef | grep bangumiAndDonghua | grep -v grep | cut -c 9-15 | xargs kill -9
