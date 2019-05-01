@@ -7,7 +7,7 @@ import time
 import datetime
 import json
 from scrapy_redis.spiders import RedisSpider
-from biliob_tracer.task import ExistsTask
+from biliob_tracer.task import SpiderTask
 from db import db
 
 
@@ -22,10 +22,11 @@ class BangumiAndDonghuaSpider(RedisSpider):
     }
 
     def __init__(self):
-        ExistsTask("番剧动画爬虫", collection=db['tracer'])
+        self.task = SpiderTask("番剧动画爬虫", collection=db['tracer'])
 
     def parse(self, response):
         try:
+            self.task.crawl_count += 1
             j = json.loads(response.xpath(
                 "//script[3]/text()").extract()[0][len('window.__INITIAL_STATE__='):].split(';')[0])
             for each in j['rankList']:
@@ -52,6 +53,7 @@ class BangumiAndDonghuaSpider(RedisSpider):
                 yield item
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",
