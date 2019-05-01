@@ -9,7 +9,7 @@ import logging
 from pymongo import MongoClient
 import datetime
 from scrapy_redis.spiders import RedisSpider
-from biliob_tracer.task import ExistsTask
+from biliob_tracer.task import SpiderTask
 from db import db
 
 
@@ -24,10 +24,11 @@ class OnlineSpider(RedisSpider):
     }
 
     def __init__(self):
-        ExistsTask('同时在线人数爬虫', collection=db['tracer'])
+        self.task = SpiderTask('同时在线人数爬虫', collection=db['tracer'])
 
     def parse(self, response):
         try:
+            self.task.crawl_count += 1
             video_list = response.xpath('//*[@id="app"]/div[2]/div[2]/div')
 
             # 为了爬取分区、粉丝数等数据，需要进入每一个视频的详情页面进行抓取
@@ -51,6 +52,7 @@ class OnlineSpider(RedisSpider):
                     callback=self.detailParse)
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",
