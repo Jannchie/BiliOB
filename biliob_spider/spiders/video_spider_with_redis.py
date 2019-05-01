@@ -12,7 +12,7 @@ from db import settings
 from util import sub_channel_2_channel
 from scrapy_redis.spiders import RedisSpider
 from db import redis_connect_string
-from biliob_tracer.task import ExistsTask
+from biliob_tracer.task import SpiderTask
 
 
 class VideoSpiderWithRedis(RedisSpider):
@@ -33,11 +33,11 @@ class VideoSpiderWithRedis(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
-        ExistsTask('视频数据更新爬虫', collection=self.db['tracer'])
+        self.task = SpiderTask('视频数据更新爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:
-
+            self.task.crawl_count += 1
             r = json.loads(response.body)
             d = r["data"]
             keys = list(d.keys())
@@ -106,6 +106,7 @@ class VideoSpiderWithRedis(RedisSpider):
 
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             if r['code'] == -404:
                 return
             mailer.send(

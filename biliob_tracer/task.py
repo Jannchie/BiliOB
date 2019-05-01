@@ -1,7 +1,6 @@
 from datetime import datetime
 import threading
 from time import sleep
-
 import socket
 
 
@@ -14,13 +13,13 @@ class STATUS():
     TIMEOUT = 8
     FINISED = 9
 
-
 class Task(object):
 
     def get_computer_name(self):
         # 获取计算机名
         hostname = socket.gethostname()
         return hostname
+
 
     def __init__(self, task_name, update_frequency=5, timeout=60, collection=None):
         self.collection = collection
@@ -131,3 +130,10 @@ class ProgressTask(Task):
 
     def get_finish_data(self):
         return {'status': STATUS.FINISED, 'msg': '计划任务已完成'}
+
+class SpiderTask(ExistsTask):
+    pass
+    def __init__(self, task_name, update_frequency=5, collection=None):
+        super().__init__(task_name, update_frequency, 0, collection)
+        self.crawl_count = 0
+        self.crawl_failed = 0
