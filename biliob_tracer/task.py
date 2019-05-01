@@ -134,6 +134,6 @@ class ProgressTask(Task):
 class SpiderTask(ExistsTask):
     pass
     def __init__(self, task_name, update_frequency=5, collection=None):
-        super().__init__(task_name, update_frequency, 0, collection)
+        super().__init__(task_name, update_frequency, collection)
         self.crawl_count = 0
         self.crawl_failed = 0
