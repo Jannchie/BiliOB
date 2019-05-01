@@ -6,12 +6,13 @@ from haishoku.haishoku import Haishoku
 from face import face
 from color import color
 
-start_date = datetime.datetime(2018, 11, 1)
+start_date = datetime.datetime(2018, 12, 1)
 end_date = datetime.datetime.now()
 date_range = 30 * 24 * 60 * 60
 delta_date = 0.25 * 24 * 60 * 60
 date_format = '%Y-%m-%d %H:%M'
 d = {}
+output_file = 'D:/数据/B站/fans/月结粉丝.csv'
 
 current_date = start_date.timestamp()
 while (current_date < end_date.timestamp()):
@@ -57,7 +58,7 @@ for each_author in db['author'].find({'cFans': {'$gt': 200000}}).batch_size(5):
 for c_date in d:
     d[c_date] = sorted(d[c_date], key=lambda x: x[1], reverse=True)[:20]
 
-with open('D:/数据/B站/fans/月结粉丝.csv', 'w', encoding="utf-8-sig") as f:
+with open(output_file, 'w', encoding="utf-8-sig") as f:
     f.writelines('date,name,value\n')
     for each_date in d:
         for each_data in d[each_date]:
@@ -75,7 +76,7 @@ with open('./get_data/face.py', 'w', encoding="utf-8-sig") as f:
 for each_author in face:
     if each_author in color:
         continue
-    if face[each_author][-3:] == 'gif':
+    if face[each_author][-3:] == 'gif' or each_author == '开眼视频App':
         color[each_author] = '#000000'
     else:
         color_list = Haishoku.getPalette(face[each_author])
