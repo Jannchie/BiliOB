@@ -11,7 +11,7 @@ import datetime
 from db import settings
 from scrapy_redis.spiders import RedisSpider
 
-from biliob_tracer.task import ExistsTask
+from biliob_tracer.task import SpiderTask
 
 
 class VideoAutoAddSpider(RedisSpider):
@@ -34,10 +34,11 @@ class VideoAutoAddSpider(RedisSpider):
                                        settings['MONGO_PSW'])
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
-        ExistsTask('观测UP主的视频数据自动追加爬虫', collection=self.db['tracer'])
+        self.task = SpiderTask('观测UP主的视频数据自动追加爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:
+            self.task.crawl_count += 1
             j = json.loads(response.body)
             if len(j['data']['vlist']) == 0:
                 return
@@ -56,6 +57,7 @@ class VideoAutoAddSpider(RedisSpider):
             yield item
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",

@@ -10,7 +10,7 @@ from pymongo import MongoClient
 import datetime
 
 from scrapy_redis.spiders import RedisSpider
-from biliob_tracer.task import ExistsTask
+from biliob_tracer.task import SpiderTask
 from db import db
 
 
@@ -25,11 +25,11 @@ class OnlineSpider(RedisSpider):
     }
 
     def __init__(self):
-        ExistsTask('全站信息爬虫', collection=db['tracer'])
+        self.task = SpiderTask('全站信息爬虫', collection=db['tracer'])
 
     def parse(self, response):
         try:
-
+            self.task.crawl_count += 1
             r = json.loads(response.body)
             d = r["data"]
             item = SiteItem()
@@ -41,6 +41,7 @@ class OnlineSpider(RedisSpider):
 
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",
