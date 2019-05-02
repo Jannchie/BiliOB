@@ -19,8 +19,8 @@ SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
 
 REDIS_URL = env_dist['BILIOB_REDIS_CONNECTION_STRING']
 
-LOG_FILE = "danmaku_spider.log"
-LOG_LEVEL = "DEBUG"
+# LOG_FILE = "danmaku_spider.log"
+# LOG_LEVEL = "DEBUG"
 
 BOT_NAME = 'danmaku_spider'
 
@@ -78,9 +78,9 @@ COOKIES_ENABLED = False
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-
-# }
+ITEM_PIPELINES = {
+    'danmaku_spider.pipelines.DanmakuSpiderPipeline': 200
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
