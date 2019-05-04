@@ -120,14 +120,14 @@ def update_author():
 def update_unfocus_video():
     task_name = "生成保守观测视频待爬链接"
     logger.info(task_name)
-    doc_filter = {'aid': 1, 'focus': False}
+    doc_filter = {'focus': False}
     gen_video_link_by_filter(task_name, doc_filter)
 
 
 def update_video():
     task_name = "生成每日视频待爬链接"
     logger.info(task_name)
-    doc_filter = {'aid': 1, 'focus': True}
+    doc_filter = {'focus': True}
     gen_video_link_by_filter(task_name, doc_filter)
 
 
