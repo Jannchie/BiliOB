@@ -147,6 +147,7 @@ def send_aids(task_name, total, cursor):
     for each_doc in cursor:
         aid_list += str(each_doc['aid']) + ','
         i += 1
+        logger.info(each_doc['aid'])
         if i == 100:
             t.current_value += i
             redis_connection.rpush(

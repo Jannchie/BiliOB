@@ -80,12 +80,13 @@ class AuthorUpdateWithRedis(RedisSpider):
                 item['object_id'] = url_list[1]
             else:
                 item['object_id'] = None
-            yield Request(
-                "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
-                    mid=str(mid)),
-                meta={'item': item},
-                method='GET',
-                callback=self.parse_view)
+            if fans != None:
+                yield Request(
+                    "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
+                        mid=str(mid)),
+                    meta={'item': item},
+                    method='GET',
+                    callback=self.parse_view)
         except Exception as error:
             # 出现错误时打印错误日志
             self.task.crawl_failed += 1
