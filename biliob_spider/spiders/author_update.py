@@ -76,12 +76,13 @@ class AuthorUpdate(scrapy.spiders.Spider):
             item['c_attention'] = int(attention)
             item['c_archive'] = int(archive)
             item['c_article'] = int(article)
-            yield Request(
-                "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
-                    mid=str(mid)),
-                meta={'item': item},
-                method='GET',
-                callback=self.parse_view)
+            if fans != None:
+                yield Request(
+                    "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
+                        mid=str(mid)),
+                    meta={'item': item},
+                    method='GET',
+                    callback=self.parse_view)
         except Exception as error:
             # 出现错误时打印错误日志
             mailer.send(
