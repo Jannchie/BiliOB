@@ -334,30 +334,31 @@ class AuthorPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            self.coll.update_one({
-                'mid': item['mid']
-            }, {
-                '$set': {
-                    'focus': True,
-                    'sex': item['sex'],
-                    'name': item['name'],
-                    'face': item['face'],
-                    'level': item['level'],
-                    'cFans': item['c_fans'],
-                    'official': item['official'],
-                },
-                '$push': {
-                    'data': {
-                        '$each': [item['data']],
-                        '$position': 0
+            if(item['c_fans'] != 0):
+                self.coll.update_one({
+                    'mid': item['mid']
+                }, {
+                    '$set': {
+                        'focus': True,
+                        'sex': item['sex'],
+                        'name': item['name'],
+                        'face': item['face'],
+                        'level': item['level'],
+                        'cFans': item['c_fans'],
+                        'official': item['official'],
+                    },
+                    '$push': {
+                        'data': {
+                            '$each': [item['data']],
+                            '$position': 0
+                        }
                     }
-                }
-            }, True)
-            if 'object_id' in item:
-                sentCallBack(item['object_id'], self.db['user_record'])
-            # self.redis_connection.delete(
-            #     "author_detail::{}".format(item['mid']))
-            return item
+                }, True)
+                if 'object_id' in item:
+                    sentCallBack(item['object_id'], self.db['user_record'])
+                # self.redis_connection.delete(
+                #     "author_detail::{}".format(item['mid']))
+                return item
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error('{}: {}'.format(spider.name, error))
