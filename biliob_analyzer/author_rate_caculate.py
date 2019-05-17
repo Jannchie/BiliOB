@@ -65,3 +65,6 @@ def author_fans_rate_caculate():
                             'cRate': int(delta_fans)
                         }
                     })
+
+
+author_fans_rate_caculate()
