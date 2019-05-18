@@ -88,7 +88,6 @@ class Task(object):
             try:
                 self.collection.update_one(
                     self.base_result, {'$set': result}, True)
-                print(result)
             except Exception as error:
                 print(error)
                 pass
