@@ -11,7 +11,7 @@ class STATUS():
     ALIVE = 5
     WARNING = 6
     TIMEOUT = 8
-    FINISED = 9
+    FINISHED = 9
 
 
 class Task(object):
@@ -85,8 +85,13 @@ class Task(object):
 
     def output_result(self, result):
         if self.collection != None:
-            self.collection.update_one(
-                self.base_result, {'$set': result}, True)
+            try:
+                self.collection.update_one(
+                    self.base_result, {'$set': result}, True)
+                print(result)
+            except Exception as error:
+                print(error)
+                pass
         else:
             print(result)
 
@@ -129,7 +134,7 @@ class ProgressTask(Task):
         return {'status': STATUS.UPDATE, 'msg': '计划任务执行中', 'current_value': self.current_value}
 
     def get_finish_data(self):
-        return {'status': STATUS.FINISED, 'msg': '计划任务已完成'}
+        return {'status': STATUS.FINISHED, 'msg': '计划任务已完成'}
 
 
 class SpiderTask(ExistsTask):
