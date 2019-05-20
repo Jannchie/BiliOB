@@ -139,7 +139,7 @@ class ProgressTask(Task):
         if self.collection != None:
             try:
                 self.collection.update_one(
-                    {'task_name': self.task_name}, {'$set': result}, True)
+                    {'task_name': self.task_name, 'computer_name':self.computer_name}, {'$set': result}, True)
             except Exception as error:
                 print(error)
                 pass
