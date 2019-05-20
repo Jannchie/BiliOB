@@ -135,6 +135,17 @@ class ProgressTask(Task):
     def get_finish_data(self):
         return {'status': STATUS.FINISHED, 'msg': '计划任务已完成'}
 
+    def output_result(self, result):
+        if self.collection != None:
+            try:
+                self.collection.update_one(
+                    {'task_name': self.task_name}, {'$set': result}, True)
+            except Exception as error:
+                print(error)
+                pass
+        else:
+            print(result)
+
 
 class SpiderTask(ExistsTask):
     pass
