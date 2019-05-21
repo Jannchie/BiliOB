@@ -12,7 +12,14 @@ import requests
 from db import redis_connection
 from db import db
 import logging
+
+from biliob_analyzer.author_rate_caculate import author_fans_rate_caculate
+
+from biliob_analyzer.video_rank import compute_video_rank_table
+from biliob_analyzer.author_rank import calculate_author_rank
 from biliob_tracer.task import ExistsTask
+
+from biliob_analyzer.video_rank import calculate_video_rank
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -203,9 +210,14 @@ def gen_online():
 
 schedule.every().day.at('01:00').do(run_threaded, update_author)
 schedule.every().day.at('07:00').do(run_threaded, update_video)
+schedule.every().day.at('13:00').do(run_threaded, author_fans_rate_caculate)
 schedule.every().day.at('14:00').do(run_threaded, auto_add_author)
 schedule.every().day.at('16:50').do(run_threaded, auto_crawl_bangumi)
 schedule.every().day.at('22:00').do(run_threaded, auto_add_video)
+
+schedule.every().wednesday.at('03:20').do(run_threaded, compute_video_rank_table)
+schedule.every().monday.at('03:20').do(run_threaded, calculate_author_rank)
+
 schedule.every().week.do(run_threaded, update_unfocus_video)
 schedule.every().hour.do(run_threaded, sendSiteInfoCrawlRequest)
 schedule.every(1).minutes.do(run_threaded, crawlOnlineTopListData)

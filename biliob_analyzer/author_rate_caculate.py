@@ -67,4 +67,3 @@ def author_fans_rate_caculate():
                     })
 
 
-author_fans_rate_caculate()
