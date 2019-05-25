@@ -3,6 +3,7 @@ from db import db
 import datetime
 import logging
 from pymongo import DESCENDING
+from biliob_tracer.task import ProgressTask
 coll = db['author']  # 获得collection的句柄
 
 logging.basicConfig(level=logging.INFO,
@@ -15,10 +16,13 @@ def format_p_rank(i, count):
 
 
 def calculate_author_rank():
-    for each_key in ['cFans', 'cArchive_view', 'cArticle_view']:
+    task_name = "计算作者排名数据"
+    keys = ['cFans', 'cArchive_view', 'cArticle_view']
+    count = coll.count_documents({keys[0]: {'$exists': 1}})
+    t = ProgressTask(task_name, count * len(keys), collection=db['tracer'])
+    for each_key in keys:
         logger.info("开始计算作者{}排名".format(each_key))
         i = 1
-        count = coll.count_documents({})
         authors = coll.find({each_key: {'$exists': 1}}, {'mid': 1, 'rank': 1, each_key: 1}).batch_size(
             300).sort(each_key, DESCENDING)
         if each_key == 'cFans':
@@ -34,6 +38,8 @@ def calculate_author_rank():
             each_d_rank = 'dArticleViewRank'
             each_p_rank = 'pArticleViewRank'
         for each_author in authors:
+            t.current_value += 1
+            logger.info("计算{}排名".format(each_author['mid']))
             # 如果没有data 直接下一个
             if each_key in each_author:
                 # 如果已经计算过rank
@@ -72,5 +78,5 @@ def calculate_author_rank():
                 }
             })
             i += 1
-
+    t.current_value = t.total_value
     logger.info("计算作者排名结束")
