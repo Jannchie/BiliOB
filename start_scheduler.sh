@@ -1,5 +1,5 @@
 #!/bin/bash
-tasks=(start_scheduler)
+tasks=(start_scheduler.py)
 
 for var in ${tasks[@]} 
 do 
