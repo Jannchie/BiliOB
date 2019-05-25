@@ -87,7 +87,7 @@ class Task(object):
         if self.collection != None:
             try:
                 self.collection.update_one(
-                    self.base_result, {'$set': result}, True)
+                    {'task_name': self.task_name, 'computer_name': self.computer_name}, {'$set': result}, True)
             except Exception as error:
                 print(error)
                 pass
@@ -121,7 +121,7 @@ class ProgressTask(Task):
         super().__init__(task_name, update_frequency, 0, collection)
 
     def get_start_data(self):
-        return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value}
+        return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value, 'current_value': 0}
 
     def set_finished(self):
         if self.current_value >= self.total_value:
@@ -134,17 +134,6 @@ class ProgressTask(Task):
 
     def get_finish_data(self):
         return {'status': STATUS.FINISHED, 'msg': '计划任务已完成'}
-
-    def output_result(self, result):
-        if self.collection != None:
-            try:
-                self.collection.update_one(
-                    {'task_name': self.task_name, 'computer_name':self.computer_name}, {'$set': result}, True)
-            except Exception as error:
-                print(error)
-                pass
-        else:
-            print(result)
 
 
 class SpiderTask(ExistsTask):
