@@ -193,6 +193,19 @@ def sendSiteInfoCrawlRequest():
     redis_connection.rpush(SITEINFO_KEY, SITEINFO_URL)
 
 
+def add_tag_task():
+    task_name = "生成待爬标签视频链接"
+    coll = db['video']
+    doc_filter = {'tag': {'$exists': False}}
+    total = coll.find(doc_filter, {"aid": 1}).count()
+    cursor = coll.find(doc_filter,{"aid": 1}).batch_size(100)
+    t = ProgressTask(task_name, total, collection=db['tracer'])
+    url = 'https://www.bilibili.com/video/av{}'
+    for each_video in cursor:
+        t.current_value +=1
+        aid = each_video['aid']
+        redis_connection.rpush("tagAdder:start_urls", url.format(aid))
+
 def auto_crawl_task():
     task_name = "自动爬虫计划调度服务"
     logger.info(task_name)
@@ -217,6 +230,7 @@ schedule.every().day.at('13:00').do(run_threaded, author_fans_rate_caculate)
 schedule.every().day.at('14:00').do(run_threaded, auto_add_author)
 schedule.every().day.at('16:50').do(run_threaded, auto_crawl_bangumi)
 schedule.every().day.at('22:00').do(run_threaded, auto_add_video)
+schedule.every().day.at('04:00').do(run_threaded, add_tag_task)
 
 schedule.every().wednesday.at('03:20').do(
     run_threaded, compute_video_rank_table)
