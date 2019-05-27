@@ -71,6 +71,7 @@ def auto_add_author():
         'https://www.bilibili.com/ranking/all/168/0/3',
         'https://www.bilibili.com/ranking/all/3/0/3',
         'https://www.bilibili.com/ranking/all/129/0/3',
+        'https://www.bilibili.com/ranking/all/188/0/3',
         'https://www.bilibili.com/ranking/all/4/0/3',
         'https://www.bilibili.com/ranking/all/36/0/3',
         'https://www.bilibili.com/ranking/all/160/0/3',
