@@ -8,25 +8,14 @@ import json
 import logging
 from pymongo import MongoClient
 import datetime
+from scrapy_redis.spiders import RedisSpider
+from biliob_tracer.task import SpiderTask
+from db import db
 
 
-class AuthorAutoAddSpider(scrapy.spiders.Spider):
+class AuthorAutoAddSpider(RedisSpider):
     name = "authorAutoAdd"
     allowed_domains = ["bilibili.com"]
-    start_urls = [
-        'https://www.bilibili.com/ranking',
-        'https://www.bilibili.com/ranking/all/1/0/3',
-        'https://www.bilibili.com/ranking/all/168/0/3',
-        'https://www.bilibili.com/ranking/all/3/0/3',
-        'https://www.bilibili.com/ranking/all/129/0/3',
-        'https://www.bilibili.com/ranking/all/4/0/3',
-        'https://www.bilibili.com/ranking/all/36/0/3',
-        'https://www.bilibili.com/ranking/all/160/0/3',
-        'https://www.bilibili.com/ranking/all/119/0/3',
-        'https://www.bilibili.com/ranking/all/155/0/3',
-        'https://www.bilibili.com/ranking/all/5/0/3',
-        'https://www.bilibili.com/ranking/all/181/0/3'
-    ]
 
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -35,8 +24,12 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
         'DOWNLOAD_DELAY': 10
     }
 
+    def __init__(self):
+        self.task = SpiderTask('活跃作者自动追加爬虫', collection=db['tracer'])
+
     def parse(self, response):
         try:
+            self.task.crawl_count += 1
             url_list = response.xpath(
                 "//*[@id='app']/div[2]/div/div[1]/div[2]/div[3]/ul/li/div[2]/div[2]/div/a/@href"
             ).extract()
@@ -49,6 +42,7 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
                     method='GET',
                     callback=self.detailParse)
         except Exception as error:
+            self.task.crawl_failed += 1
             # 出现错误时打印错误日志
             mailer.send(
                 to=["604264970@qq.com"],
@@ -98,6 +92,7 @@ class AuthorAutoAddSpider(scrapy.spiders.Spider):
                 yield item
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",

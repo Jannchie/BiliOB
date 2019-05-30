@@ -12,6 +12,7 @@ from db import settings
 from db import redis_connect_string
 from scrapy_redis.spiders import RedisSpider
 import redis
+from biliob_tracer.task import SpiderTask
 
 
 class AuthorUpdateWithRedis(RedisSpider):
@@ -34,9 +35,11 @@ class AuthorUpdateWithRedis(RedisSpider):
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
+        self.task = SpiderTask('作者数据更新爬虫', collection=self.db['tracer'])
 
     def parse(self, response):
         try:
+            self.task.crawl_count += 1
             j = json.loads(response.body)
             name = j['data']['card']['name']
             mid = j['data']['card']['mid']
@@ -77,14 +80,16 @@ class AuthorUpdateWithRedis(RedisSpider):
                 item['object_id'] = url_list[1]
             else:
                 item['object_id'] = None
-            yield Request(
-                "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
-                    mid=str(mid)),
-                meta={'item': item},
-                method='GET',
-                callback=self.parse_view)
+            if fans != None:
+                yield Request(
+                    "https://api.bilibili.com/x/space/upstat?mid={mid}".format(
+                        mid=str(mid)),
+                    meta={'item': item},
+                    method='GET',
+                    callback=self.parse_view)
         except Exception as error:
             # 出现错误时打印错误日志
+            self.task.crawl_failed += 1
             mailer.send(
                 to=["604264970@qq.com"],
                 subject="BiliobSpiderError",
