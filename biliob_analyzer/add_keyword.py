@@ -2,7 +2,6 @@ from pymongo import ReturnDocument
 import jieba
 from db import db
 from time import sleep
-
 # 载入字典
 
 

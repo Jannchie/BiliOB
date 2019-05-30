@@ -11,7 +11,8 @@ class STATUS():
     ALIVE = 5
     WARNING = 6
     TIMEOUT = 8
-    FINISED = 9
+    FINISHED = 9
+
 
 class Task(object):
 
@@ -19,7 +20,6 @@ class Task(object):
         # 获取计算机名
         hostname = socket.gethostname()
         return hostname
-
 
     def __init__(self, task_name, update_frequency=5, timeout=60, collection=None):
         self.collection = collection
@@ -85,8 +85,12 @@ class Task(object):
 
     def output_result(self, result):
         if self.collection != None:
-            self.collection.update_one(
-                self.base_result, {'$set': result}, True)
+            try:
+                self.collection.update_one(
+                    {'task_name': self.task_name, 'computer_name': self.computer_name}, {'$set': result}, True)
+            except Exception as error:
+                print(error)
+                pass
         else:
             print(result)
 
@@ -117,7 +121,7 @@ class ProgressTask(Task):
         super().__init__(task_name, update_frequency, 0, collection)
 
     def get_start_data(self):
-        return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value}
+        return {'status': STATUS.START, 'msg': '计划任务开始', 'total_value': self.total_value, 'current_value': 0}
 
     def set_finished(self):
         if self.current_value >= self.total_value:
@@ -129,11 +133,16 @@ class ProgressTask(Task):
         return {'status': STATUS.UPDATE, 'msg': '计划任务执行中', 'current_value': self.current_value}
 
     def get_finish_data(self):
-        return {'status': STATUS.FINISED, 'msg': '计划任务已完成'}
+        return {'status': STATUS.FINISHED, 'msg': '计划任务已完成'}
+
 
 class SpiderTask(ExistsTask):
     pass
+
     def __init__(self, task_name, update_frequency=5, collection=None):
-        super().__init__(task_name, update_frequency, 0, collection)
+        super().__init__(task_name, update_frequency, collection)
         self.crawl_count = 0
         self.crawl_failed = 0
+
+    def get_update_data(self):
+        return {'crawl_count': self.crawl_count, 'crawl_failed': self.crawl_failed, 'status': STATUS.ALIVE, 'msg': '任务正常执行中'}

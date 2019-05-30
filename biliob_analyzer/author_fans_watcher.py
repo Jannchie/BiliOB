@@ -168,7 +168,3 @@ class FansWatcher(object):
         for each_author in author_coll.find(author_filter).batch_size(40):
             self.__judge(each_author)
     pass
-
-
-FansWatcher().watchBigAuthor()
-a = FansWatcher()
