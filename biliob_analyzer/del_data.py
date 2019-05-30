@@ -1,7 +1,7 @@
 from db import db
 import datetime
 author_coll = db['author']
-authors = author_coll.find({'data.3000': {'$exists': True}})
+authors = author_coll.find({'data.2000': {'$exists': True}})
 for each_author in authors:
     mid = each_author['mid']
     data = sorted(each_author['data'],

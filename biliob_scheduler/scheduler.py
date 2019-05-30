@@ -12,7 +12,15 @@ import requests
 from db import redis_connection
 from db import db
 import logging
+
+from biliob_analyzer.author_rate_caculate import author_fans_rate_caculate
+
+from biliob_analyzer.video_rank import compute_video_rank_table
+from biliob_analyzer.author_rank import calculate_author_rank
 from biliob_tracer.task import ExistsTask
+
+from biliob_analyzer.video_rank import calculate_video_rank
+from biliob_analyzer.author_fans_watcher import FansWatcher
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
 logger = logging.getLogger(__name__)
@@ -63,6 +71,7 @@ def auto_add_author():
         'https://www.bilibili.com/ranking/all/168/0/3',
         'https://www.bilibili.com/ranking/all/3/0/3',
         'https://www.bilibili.com/ranking/all/129/0/3',
+        'https://www.bilibili.com/ranking/all/188/0/3',
         'https://www.bilibili.com/ranking/all/4/0/3',
         'https://www.bilibili.com/ranking/all/36/0/3',
         'https://www.bilibili.com/ranking/all/160/0/3',
@@ -120,14 +129,14 @@ def update_author():
 def update_unfocus_video():
     task_name = "生成保守观测视频待爬链接"
     logger.info(task_name)
-    doc_filter = {'aid': 1, 'focus': False}
+    doc_filter = {'focus': False}
     gen_video_link_by_filter(task_name, doc_filter)
 
 
 def update_video():
     task_name = "生成每日视频待爬链接"
     logger.info(task_name)
-    doc_filter = {'aid': 1, 'focus': True}
+    doc_filter = {'focus': True}
     gen_video_link_by_filter(task_name, doc_filter)
 
 
@@ -147,6 +156,7 @@ def send_aids(task_name, total, cursor):
     for each_doc in cursor:
         aid_list += str(each_doc['aid']) + ','
         i += 1
+        logger.info(each_doc['aid'])
         if i == 100:
             t.current_value += i
             redis_connection.rpush(
@@ -183,6 +193,19 @@ def sendSiteInfoCrawlRequest():
     redis_connection.rpush(SITEINFO_KEY, SITEINFO_URL)
 
 
+def add_tag_task():
+    task_name = "生成待爬标签视频链接"
+    coll = db['video']
+    doc_filter = {'tag': {'$exists': False}}
+    total = coll.find(doc_filter, {"aid": 1}).count()
+    cursor = coll.find(doc_filter,{"aid": 1}).batch_size(100)
+    t = ProgressTask(task_name, total, collection=db['tracer'])
+    url = 'https://www.bilibili.com/video/av{}'
+    for each_video in cursor:
+        t.current_value +=1
+        aid = each_video['aid']
+        redis_connection.rpush("tagAdder:start_urls", url.format(aid))
+
 def auto_crawl_task():
     task_name = "自动爬虫计划调度服务"
     logger.info(task_name)
@@ -202,9 +225,17 @@ def gen_online():
 
 schedule.every().day.at('01:00').do(run_threaded, update_author)
 schedule.every().day.at('07:00').do(run_threaded, update_video)
+schedule.every().day.at('12:00').do(run_threaded, FansWatcher().watchBigAuthor)
+schedule.every().day.at('13:00').do(run_threaded, author_fans_rate_caculate)
 schedule.every().day.at('14:00').do(run_threaded, auto_add_author)
 schedule.every().day.at('16:50').do(run_threaded, auto_crawl_bangumi)
 schedule.every().day.at('22:00').do(run_threaded, auto_add_video)
+schedule.every().day.at('04:00').do(run_threaded, add_tag_task)
+
+schedule.every().wednesday.at('03:20').do(
+    run_threaded, compute_video_rank_table)
+schedule.every().monday.at('03:20').do(run_threaded, calculate_author_rank)
+
 schedule.every().week.do(run_threaded, update_unfocus_video)
 schedule.every().hour.do(run_threaded, sendSiteInfoCrawlRequest)
 schedule.every(1).minutes.do(run_threaded, crawlOnlineTopListData)
