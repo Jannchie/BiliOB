@@ -8,23 +8,14 @@ import json
 import logging
 from pymongo import MongoClient
 import datetime
+from scrapy_redis.spiders import RedisSpider
 
 
-class BiliMonthlyRankSpider(scrapy.spiders.Spider):
+class BiliMonthlyRankSpider(RedisSpider):
     name = "biliMonthlyRank"
     allowed_domains = ["bilibili.com"]
     start_urls = [
-        'https://www.bilibili.com/ranking/all/1/0/30',
-        'https://www.bilibili.com/ranking/all/168/0/30',
-        'https://www.bilibili.com/ranking/all/3/0/30',
-        'https://www.bilibili.com/ranking/all/129/0/30',
-        'https://www.bilibili.com/ranking/all/4/0/30',
-        'https://www.bilibili.com/ranking/all/36/0/30',
-        'https://www.bilibili.com/ranking/all/160/0/30',
-        'https://www.bilibili.com/ranking/all/119/0/30',
-        'https://www.bilibili.com/ranking/all/155/0/30',
-        'https://www.bilibili.com/ranking/all/5/0/30',
-        'https://www.bilibili.com/ranking/all/181/0/30'
+
     ]
 
     custom_settings = {
