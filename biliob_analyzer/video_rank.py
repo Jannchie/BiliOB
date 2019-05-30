@@ -5,46 +5,60 @@ import logging
 from pymongo import DESCENDING
 from time import sleep
 
+from biliob_tracer.task import ProgressTask
+
 
 def format_p_rank(i, count):
     return round(i / count * 100, 2)
 
 
-def computeVideoRankTable():
-    o = {}
+def compute_video_rank_table():
+    task_name = '计算视频排名对照表'
     coll = db['video']  # 获得collection的句柄
-    # logging.basicConfig(level=logging.INFO,
-    #                     format='[%(asctime)s] %(levelname)s @ %(name)s: %(message)s')
-    # logger = logging.getLogger(__name__)
-    # logger.info("开始计算视频数据排名对照表")
+    count = coll.estimated_document_count()
+    top_n = 60
+    print(count)
     keys = ['cView', 'cLike', 'cDanmaku', 'cFavorite', 'cCoin', 'cShare']
-    # count = coll.count_documents({})
-    count = 330870
+    task = ProgressTask(task_name, top_n * len(keys), collection=db['tracer'])
+    o = {}
     skip = int(count / 100)
-    for each_key in keys:
-        o[each_key] = []
-        o[each_key+'Top'] = []
+    for each_key_index in range(len(keys)):
+        each_key = keys[each_key_index]
+        o[each_key] = {}
+        o['name'] = 'video_rank'
+        o[each_key]['rate'] = []
         i = 1
         last_value = 9999999999
         # logger.info("开始计算视频{}排名对照表".format(each_key))
         video = coll.find({}, {
-            'title': 1}).limit(200).sort(each_key, DESCENDING)
-        for each_video in video:
-            o[each_key+'Top'].append(each_video['title'])
-            pass
-        while i <= 80:
-            video = next(coll.find({each_key: {'$lt': last_value}}, {
-                each_key: 1}).skip(skip).limit(1).sort(each_key, DESCENDING))
+            'title': 1}).limit(200).sort(each_key, DESCENDING).batch_size(200)
+        top = 1
+        for each_video in list(video):
+            o[each_key][each_video['title']] = top
+            top += 1
+
+        while i <= top_n:
+            task.current_value = i + top_n * each_key_index
+            video = list(coll.find({each_key: {'$lt': last_value}}, {
+                each_key: 1}).limit(1).skip(skip).sort(each_key, DESCENDING))
+            print(video)
+            if len(video) != 0:
+                video = video[0]
+            else:
+                i += 1
+                continue
             if each_key not in video:
                 break
             last_value = video[each_key]
-            o[each_key].append(last_value)
+            o[each_key]['rate'].append(last_value)
+            print(last_value)
             i += 1
-        print(o)
-        pass
+    o['update_time'] = datetime.datetime()
+    output_coll = db['rank_table']
+    output_coll.update_one({'name': 'video_rank'}, {'$set': o}, upsert=True)
 
 
-def computeVideoRank():
+def calculate_video_rank(sleep_time=0.03):
     coll = db['video']  # 获得collection的句柄
 
     logging.basicConfig(level=logging.INFO,
@@ -68,7 +82,7 @@ def computeVideoRank():
 
         for each_video in videos:
             logger.info("[aid]{}".format(each_video['aid']))
-            sleep(0.01)
+            sleep(sleep_time)
             # 如果没有data 直接下一个
             if each_key in each_video:
                 if 'rank' in each_video:
@@ -107,6 +121,3 @@ def computeVideoRank():
             i += 1
 
         logger.info("完成计算视频数据排名")
-
-
-computeVideoRank()

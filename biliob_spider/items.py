@@ -24,6 +24,11 @@ class TagItem(scrapy.Item):
     ctime = scrapy.Field()
 
 
+class TagListItem(scrapy.Item):
+    tag_list = scrapy.Field()
+    aid = scrapy.Field()
+
+
 class BangumiItem(scrapy.Item):
     title = scrapy.Field()
     tag = scrapy.Field()
