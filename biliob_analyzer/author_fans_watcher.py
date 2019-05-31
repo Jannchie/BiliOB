@@ -4,6 +4,8 @@ import datetime
 from enum import Enum
 from scipy.interpolate import interp1d
 
+from biliob_tracer.task import ProgressTask
+
 author_coll = db['author']  # 获得collection的句柄
 video_coll = db['video']  # 获得collection的句柄
 fans_variation_coll = db['fans_variation']  # 获得collection的句柄
@@ -22,7 +24,6 @@ class FansWatcher(object):
     def __insert_event(self, delta_rate, d_daily, author, info, date):
         print('变化率：{}% \n单日涨幅：{} \nUP主：{} \n信息：{}\n日期：{}\n\n'.format(
             delta_rate, d_daily, author['name'], info, date))
-
         out_data = {
             'variation': int(d_daily),
             'mid': author['mid'],
@@ -69,7 +70,7 @@ class FansWatcher(object):
                 5、 大量掉粉        每日掉粉数突破5K
                 6、 雪崩级掉粉      每日掉粉数突破2W
                 7、 末日级掉粉      每日掉粉数突破5W
-                8、 新星爆发         日涨粉超过粉丝总数的20%               
+                8、 新星爆发         日涨粉超过粉丝总数的20%
         '''
 
         data = sorted(author['data'], key=lambda x: x['datetime'])
@@ -165,6 +166,38 @@ class FansWatcher(object):
         self.__judge_author(author_filter)
 
     def __judge_author(self, author_filter):
-        for each_author in author_coll.find(author_filter).batch_size(40):
+        author_cursor = author_coll.find(author_filter)
+        count = author_cursor.count()
+        a = author_coll.aggregate([
+            {
+                '$match': author_filter
+            }, {
+                '$project': {
+                    "mid": 1,
+                    "face": 1,
+                    "name": 1,
+                    "data": {
+                        "$filter": {
+                            "input":
+                            "$data",
+                            "as": "data",
+                            "cond": {"$gt": ["$$data.datetime", datetime.datetime.now()-datetime.timedelta(32)]}
+                        }
+                    }
+                }
+            }, {
+                "$match": {
+                    "data.0": {
+                        "$exists": True
+                    }
+                }
+            }
+        ])
+        print("待爬取作者数量：{}".format(count))
+        t = ProgressTask("粉丝数变动探测", total_value=count, collection=db['tracer'])
+        for each_author in a:
+            print(each_author['mid'])
+            t.current_value += 1
             self.__judge(each_author)
-    pass
+        t.finished = True
+        pass
