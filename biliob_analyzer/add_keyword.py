@@ -3,6 +3,7 @@ import jieba
 from db import db
 from time import sleep
 # 载入字典
+from biliob_tracer.task import ProgressTask
 
 
 class KeywordAdder():
@@ -130,8 +131,10 @@ class KeywordAdder():
             self.add_video_kw(aid)
 
     def add_omitted(self):
+        total_value = self.mongo_word.count_documents({})
         if self.mongo_word.count_documents({}) < 100:
             return
+        t = ProgressTask("更新查询关键词字典", total_value=total_value,collection=db['tracer'])
         d = open('./biliob_analyzer/dict.txt', 'r',
                  encoding='utf8').read().split('\n')
         for each in self.mongo_word.find():
@@ -139,8 +142,9 @@ class KeywordAdder():
                 d.append(each['aid'])
             elif 'mid' in each and each['mid'] not in d:
                 d.append(each['mid'])
-            pass
+            t.current_value += 1
         pass
+        t.finished = True
         o = open('./biliob_analyzer/dict.txt',
                  'w', encoding='utf8', newline='')
         for each in d:

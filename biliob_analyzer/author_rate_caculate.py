@@ -23,7 +23,7 @@ def author_fans_rate_caculate():
 
     task = ProgressTask("计算粉丝增速", coll.count_documents({}),
                         collection=db['tracer'])
-
+    
     c = 0
     for each in coll.find({}, {'mid': 1, '_id': 0}).batch_size(200):
         c += 1
