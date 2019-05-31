@@ -1,5 +1,5 @@
 #!/bin/bash
-spiders=(authorRedis videoRedis bangumiAndDonghua authorAutoAdd videoAutoAdd site online)
+spiders=(authorRedis videoRedis bangumiAndDonghua authorAutoAdd videoAutoAdd site online tagAdder)
 
 for var in ${spiders[@]} 
 do 
