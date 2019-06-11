@@ -169,12 +169,6 @@ def send_aids(task_name, total, cursor):
     redis_connection.rpush(
         VIDEO_KEY, VIDEO_URL.format(aid=aid_list[:-1]))
 
-
-def run_threaded(job_func):
-    job_thread = threading.Thread(target=job_func)
-    job_thread.start()
-
-
 def sendAuthorCrawlRequest(mid):
     redis_connection.rpush(AUTHOR_KEY, AUTHOR_URL.format(mid=mid))
 
@@ -224,6 +218,10 @@ def gen_online():
     redis_connection.rpush("online:start_urls", ONLINE_URL)
     t.current_value = 1
 
+
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
 
 schedule.every().day.at('01:00').do(run_threaded, update_author)
 schedule.every().day.at('07:00').do(run_threaded, update_video)
