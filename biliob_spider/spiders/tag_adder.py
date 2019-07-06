@@ -55,6 +55,11 @@ class TagAdderSpider(RedisSpider):
             # 出现错误时打印错误日志
             print(error)
             item = TagListItem()
+<<<<<<< HEAD
             item['aid'] = int(aid)
             item['tag_list'] = []
             yield item
+=======
+            item['tag_name'] = ''
+            print(response.url)
+>>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575

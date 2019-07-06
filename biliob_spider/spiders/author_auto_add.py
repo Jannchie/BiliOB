@@ -33,8 +33,12 @@ class AuthorAutoAddSpider(RedisSpider):
             url_list = response.xpath(
                 "//*[@id='app']/div[2]/div/div[1]/div[2]/div[3]/ul/li/div[2]/div[2]/div/a/@href"
             ).extract()
+<<<<<<< HEAD
             av_list = response.xpath(
                 '//*[@id="app"]/div[2]/div/div/div[2]/div[3]/ul/li/div[2]/div[2]/a/@href').extract()
+=======
+
+>>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
             # 为了爬取分区、粉丝数等数据，需要进入每一个视频的详情页面进行抓取
             for each_url in url_list:
                 yield Request(
