@@ -4,16 +4,8 @@ import datetime
 from enum import Enum
 from scipy.interpolate import interp1d
 
-<<<<<<< HEAD
 from biliob_tracer.task import ProgressTask
 
-=======
-<<<<<<< HEAD
-from biliob_tracer.task import ProgressTask
-
-=======
->>>>>>> 8575b044d85f3b37ba375836dc79b20fbd9bddd8
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
 author_coll = db['author']  # 获得collection的句柄
 video_coll = db['video']  # 获得collection的句柄
 fans_variation_coll = db['fans_variation']  # 获得collection的句柄
@@ -32,13 +24,6 @@ class FansWatcher(object):
     def __insert_event(self, delta_rate, d_daily, author, info, date):
         print('变化率：{}% \n单日涨幅：{} \nUP主：{} \n信息：{}\n日期：{}\n\n'.format(
             delta_rate, d_daily, author['name'], info, date))
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
->>>>>>> 8575b044d85f3b37ba375836dc79b20fbd9bddd8
         out_data = {
             'variation': int(d_daily),
             'mid': author['mid'],
@@ -85,11 +70,7 @@ class FansWatcher(object):
                 5、 大量掉粉        每日掉粉数突破5K
                 6、 雪崩级掉粉      每日掉粉数突破2W
                 7、 末日级掉粉      每日掉粉数突破5W
-<<<<<<< HEAD
                 8、 新星爆发         日涨粉超过粉丝总数的20%
-=======
-                8、 新星爆发         日涨粉超过粉丝总数的20%               
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
         '''
 
         data = sorted(author['data'], key=lambda x: x['datetime'])
@@ -185,7 +166,6 @@ class FansWatcher(object):
         self.__judge_author(author_filter)
 
     def __judge_author(self, author_filter):
-<<<<<<< HEAD
         author_cursor = author_coll.find(author_filter)
         count = author_cursor.count()
         a = author_coll.aggregate([
@@ -221,8 +201,3 @@ class FansWatcher(object):
             self.__judge(each_author)
         t.finished = True
         pass
-=======
-        for each_author in author_coll.find(author_filter).batch_size(40):
-            self.__judge(each_author)
-    pass
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575

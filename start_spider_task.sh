@@ -1,9 +1,5 @@
 #!/bin/bash
-<<<<<<< HEAD
 spiders=(authorRedis videoRedis bangumiAndDonghua authorAutoAdd videoAutoAdd site online tagAdder)
-=======
-spiders=(authorRedis videoRedis bangumiAndDonghua authorAutoAdd videoAutoAdd site online)
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
 
 for var in ${spiders[@]} 
 do 
