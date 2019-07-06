@@ -10,13 +10,10 @@ from pymongo import MongoClient
 import datetime
 from scrapy_redis.spiders import RedisSpider
 
-
 class BiliMonthlyRankSpider(RedisSpider):
     name = "biliMonthlyRank"
     allowed_domains = ["bilibili.com"]
-    start_urls = [
 
-    ]
 
     custom_settings = {
         'ITEM_PIPELINES': {
