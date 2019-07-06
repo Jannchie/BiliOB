@@ -50,7 +50,7 @@ class FromKan(scrapy.spiders.Spider):
         for each in dates:
             for each_channel in channel_list:
                 yield Request(
-                    'https://www.kanbilibili.com/json/all/{}/{}_play_0.json'.format(
+                    'https://www.kanbilibili.com/json/daily/{}/{}_play_0.json'.format(
                         each, each_channel), meta={'date': each})
 
     def parse(self, response):
