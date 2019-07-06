@@ -43,12 +43,23 @@ class FromKan(scrapy.spiders.Spider):
         self.coll = self.db['video']  # 获得collection的句柄
 
     def start_requests(self):
+<<<<<<< HEAD
         dates = self.dateRange('20181001', '20190120')
         for each in dates:
             yield Request(
                 'https://www.kanbilibili.com/json/all/{}/0_play_0.json'.format(
                     each),
                 meta={'date': each})
+=======
+        dates = self.dateRange('20160414', '20190120')
+        channel_list = [1, 13, 167, 3, 129, 4, 36,
+                        153, 160, 119, 155, 165, 5, 11, 23]
+        for each in dates:
+            for each_channel in channel_list:
+                yield Request(
+                    'https://www.kanbilibili.com/json/all/{}/{}_play_0.json'.format(
+                        each, each_channel), meta={'date': each})
+>>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
 
     def parse(self, response):
         try:
