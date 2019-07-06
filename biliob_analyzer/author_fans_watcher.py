@@ -4,10 +4,8 @@ import datetime
 from enum import Enum
 from scipy.interpolate import interp1d
 
-<<<<<<< HEAD
 from biliob_tracer.task import ProgressTask
 
-=======
 >>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
 author_coll = db['author']  # 获得collection的句柄
 video_coll = db['video']  # 获得collection的句柄
@@ -27,10 +25,6 @@ class FansWatcher(object):
     def __insert_event(self, delta_rate, d_daily, author, info, date):
         print('变化率：{}% \n单日涨幅：{} \nUP主：{} \n信息：{}\n日期：{}\n\n'.format(
             delta_rate, d_daily, author['name'], info, date))
-<<<<<<< HEAD
-=======
-
->>>>>>> ccbc48ffa2e158f353a8174aa02f6160e68a8575
         out_data = {
             'variation': int(d_daily),
             'mid': author['mid'],
