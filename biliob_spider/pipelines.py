@@ -169,16 +169,27 @@ class VideoPipelineFromKan(object):
                     'author': item['author'],
                     'mid': item['mid'],
                     'pic': item['pic'],
+                    'aid': item['aid'],
+                    'cView': item['current_view'],
                     'title': item['title'],
+                    'cFavorite': item['current_favorite'],
+                    'cDanmaku': item['current_danmaku'],
+                    'cCoin': item['current_coin'],
+                    'cShare': item['current_share'],
+                    'cLike': item['current_like'],
+                    'subChannel': item['subChannel'],
                     'datetime': item['datetime']
-                },
-                '$push': {
-                    'data': {
-                        '$each': [item['data']],
-                        '$position': 0
-                    }
                 }
             }, True)
+            if item['data'] != None:
+                self.coll.update_one({'aid': int(item['aid'])}, {
+                    '$push': {
+                        'data': {
+                            '$each': [item['data']],
+                            '$position': 0
+                        }
+                    }
+                })
             return item
         except Exception as error:
             # 出现错误时打印错误日志
@@ -421,6 +432,7 @@ class TagAdderPipeline(object):
             # 出现错误时打印错误日志
             logging.error('{}: {}'.format(spider.name, error))
 
+
 class TagPipeLine(object):
     def __init__(self):
         # 链接mongoDB
@@ -463,6 +475,7 @@ class VideoAddPipeline(object):
         self.db = self.client['biliob']  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
+
     def process_item(self, item, spider):
         try:
             for each_aid in item['aid']:
@@ -475,9 +488,9 @@ class VideoAddPipeline(object):
                     },
                 }, True)
                 self.redis_connection.lpush('videoRedis:start_urls',
-                    'https://api.bilibili.com/x/article/archives?ids={aid}'.format(aid=each_aid))
+                                            'https://api.bilibili.com/x/article/archives?ids={aid}'.format(aid=each_aid))
             return item
-            
+
         except Exception as error:
             # 出现错误时打印错误日志
             logging.error('{}: {}'.format(spider.name, error))
