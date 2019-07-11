@@ -8,7 +8,7 @@ import json
 import logging
 from pymongo import MongoClient
 from db import settings
-from mail import mailer
+# from mail import mailer
 from util import sub_channel_2_channel
 
 
@@ -20,7 +20,7 @@ class FromKan(scrapy.spiders.Spider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.VideoPipelineFromKan': 300,
         },
-        'DOWNLOAD_DELAY': 0.5
+        # 'DOWNLOAD_DELAY': 0.5
     }
 
     def dateRange(self, beginDate, endDate):
@@ -86,6 +86,8 @@ class FromKan(scrapy.spiders.Spider):
                 tid = None
                 title = each['title']
                 date = each['created']
+                date = datetime.datetime.strptime(
+                    date[0:-5], '%Y-%m-%dT%H:%M:%S')
                 pic = 'http:' + each['pic']
                 item = VideoItem()
                 item['current_view'] = view
@@ -118,18 +120,21 @@ class FromKan(scrapy.spiders.Spider):
                         if data_date == date_str:
                             flag = 1
                             break
-                if flag == 0:
-                    yield item
+                if flag != 0:
+                    item['data'] = None
+
+                yield item
 
         except Exception as error:
+            pass
             # 出现错误时打印错误日志
 
-            mailer.send(
-                to=["604264970@qq.com"],
-                subject="BiliobSpiderError",
-                body="{}\n{}\n{}".format(item, response.url, error),
-            )
-            logging.error("视频爬虫在解析时发生错误")
-            logging.error(item)
-            logging.error(response.url)
-            logging.error(error)
+            # mailer.send(
+            #     to=["604264970@qq.com"],
+            #     subject="BiliobSpiderError",
+            #     body="{}\n{}\n{}".format(item, response.url, error),
+            # )
+            # logging.error("视频爬虫在解析时发生错误")
+            # logging.error(item)
+            # logging.error(response.url)
+            # logging.error(error)
