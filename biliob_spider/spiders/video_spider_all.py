@@ -48,7 +48,7 @@ class VideoSpiderAll(VideoSpider):
                 aid_str = ''
             aid_str += str(aid_list.pop()) + ','
             i = i + 1
-            if i == 100 or aid_list == []:
+            if i == 50 or aid_list == []:
                 i = 0
                 yield Request(
                     "https://api.bilibili.com/x/article/archives?ids=" +
