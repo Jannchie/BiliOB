@@ -15,7 +15,7 @@ realtime_fans = db['realtime_fans']
 URL = 'https://api.bilibili.com/x/web-interface/card?mid={}'
 while True:
     docs = author.find({}, {'mid': 1}).sort(
-        'cFans', direction=DESCENDING).limit(2)
+        'cFans', direction=DESCENDING).limit(4)
     mids = map(lambda x: x['mid'], docs)
     date = datetime.datetime.now()
     for mid in mids:
