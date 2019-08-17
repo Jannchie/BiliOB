@@ -1,7 +1,7 @@
 *.pyc
 *.log
 db.py
-nohup.out
+*.out
 biliob_spider.log
 debug.py
 mail.py
