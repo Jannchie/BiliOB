@@ -3,11 +3,11 @@ from db import redis_connect_string
 from db import db
 from bson import ObjectId
 connection = redis.from_url(redis_connect_string)
-coll =  db['user_record']
+coll = db['user_record']
 key = 'DanmakuAggregate:start_urls'
 oid = str(ObjectId)
 url = 'https://api.bilibili.com/x/web-interface/view?aid={}&{}'
-coll.update_many({'isExecuted': False},{'$set':{'isExecuted': True}})
+coll.update_many({'isExecuted': False}, {'$set': {'isExecuted': True}})
 # for each in [
 #     46657799,
 #     43171839,

@@ -53,7 +53,7 @@ def compute_video_rank_table():
             o[each_key]['rate'].append(last_value)
             print(last_value)
             i += 1
-    o['update_time'] = datetime.datetime()
+    o['update_time'] = datetime.datetime.now()
     output_coll = db['rank_table']
     output_coll.update_one({'name': 'video_rank'}, {'$set': o}, upsert=True)
 
