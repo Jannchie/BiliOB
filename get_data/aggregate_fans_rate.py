@@ -26,7 +26,7 @@ while (current_date < end_date.timestamp()):
     current_date += delta_date
 
 mid_list = []
-for each_author in db['author'].find({field: {'$gt': 1000000}}, {'mid': 1}).batch_size(200):
+for each_author in db['author'].find({field: {'$gt': 100000}}, {'mid': 1}).batch_size(200):
     mid_list.append(each_author['mid'])
 
 
