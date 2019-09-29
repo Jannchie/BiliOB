@@ -2,7 +2,7 @@
 import schedule
 import threading
 from time import sleep
-
+import datetime
 from biliob_tracer.task import ProgressTask
 import requests
 import redis
@@ -108,6 +108,12 @@ def crawlOnlineTopListData():
         t.current_value += 1
 
 
+def set_minute_level_author(mid: int):
+    db['minute_level_author'].update(
+        {'mid': mid}, {'mid': mid, 'date': datetime.datetime.now(tz="CN")})
+    pass
+
+
 def update_author():
     task_name = "生成每日作者待爬链接"
     logger.info(task_name)
@@ -170,6 +176,7 @@ def send_aids(task_name, total, cursor):
     redis_connection.rpush(
         VIDEO_KEY, VIDEO_URL.format(aid=aid_list[:-1]))
 
+
 def sendAuthorCrawlRequest(mid):
     redis_connection.rpush(AUTHOR_KEY, AUTHOR_URL.format(mid=mid))
 
@@ -224,6 +231,7 @@ def gen_online():
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
     job_thread.start()
+
 
 schedule.every().day.at('01:00').do(run_threaded, update_author)
 schedule.every().day.at('07:00').do(run_threaded, update_video)

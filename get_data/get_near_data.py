@@ -2,6 +2,7 @@ import csv
 c = csv.reader(open('./origin_data.csv', 'r', encoding='utf-8-sig'))
 next(c)
 d = {}
+target_name = 'TheRock_Johnson'
 for each in c:
     data_zip = (each[0], each[2])
     if each[1] not in d:
@@ -21,7 +22,7 @@ for each in d[list(d.keys())[0]]:
     l_value = c_value
 
 
-name_list = ['TheRock_Johnson', 'Jannchie见齐']
+name_list = [target_name, 'Jannchie见齐']
 with open('./filted.csv', 'w', encoding="utf-8-sig") as f:
     f.write('"name","value","date"\n')
     for each_date in d:
@@ -36,7 +37,7 @@ with open('./filted.csv', 'w', encoding="utf-8-sig") as f:
             if (item[0] in name_list):
                 f.write('"{}","{}","{}"\n'.format(
                     item[0], item[1], each_date))
-            if d[each_date][index][0] == 'TheRock_Johnson':
+            if d[each_date][index][0] == target_name:
                 count = 0
                 for each_idx in range(index - 2, l):
                     item = d[each_date][each_idx]
