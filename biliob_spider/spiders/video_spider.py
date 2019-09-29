@@ -102,7 +102,10 @@ class VideoSpider(scrapy.spiders.Spider):
                 item['datetime'] = date
 
                 if subChannel != '':
-                    item['channel'] = sub_channel_2_channel[subChannel]
+                    if (subChannel not in sub_channel_2_channel):
+                        item['channel'] = '未知'
+                    else:
+                        item['channel'] = sub_channel_2_channel[subChannel]
                 elif subChannel == '资讯':
                     if tid == 51:
                         item['channel'] == '番剧'
