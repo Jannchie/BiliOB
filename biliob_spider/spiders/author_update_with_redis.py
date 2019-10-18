@@ -23,7 +23,7 @@ class AuthorUpdateWithRedis(RedisSpider):
         'ITEM_PIPELINES': {
             'biliob_spider.pipelines.AuthorPipeline': 300
         },
-        'DOWNLOAD_DELAY': 0.2
+        'DOWNLOAD_DELAY': 0.1
     }
 
     def __init__(self):
