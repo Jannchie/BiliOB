@@ -2,7 +2,6 @@ from scipy.interpolate import interp1d
 import logging
 import datetime
 from db import db
-from biliob_tracer.task import ProgressTask
 
 
 def author_fans_rate_caculate():
@@ -21,12 +20,9 @@ def author_fans_rate_caculate():
     start_date = (datetime.datetime(
         c_datetime.year, c_datetime.month, c_datetime.day) - datetime.timedelta(2)).timestamp()
 
-    task = ProgressTask("计算粉丝增速", coll.count_documents({}),
-                        collection=db['tracer'])
     c = 0
     for each in coll.find({}, {'mid': 1, '_id': 0}).batch_size(200):
         c += 1
-        task.current_value = c
         ag = coll.aggregate([
             {
                 '$match': {
@@ -66,3 +62,5 @@ def author_fans_rate_caculate():
                     })
 
 
+if __name__ == "__main__":
+    author_fans_rate_caculate()
