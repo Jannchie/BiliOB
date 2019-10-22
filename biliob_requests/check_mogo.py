@@ -6,9 +6,9 @@ import datetime
 
 def check():
     while True:
-        sleep(10)
+        sleep(5)
         try:
-            if len(db.current_op()['inprog']) >= 30:
+            if len(db.current_op()['inprog']) >= 100:
                 print('{} 链接失败'.format(datetime.datetime.now()))
                 os.system('systemctl restart mongod')
                 check()
