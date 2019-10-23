@@ -86,7 +86,7 @@ class Task(object):
             self.__output_result(result)
 
     def __output_result(self, result):
-        if self.collection != None:
+        if self.collection != None and False:
             try:
                 self.collection.update_one(
                     {'task_name': self.task_name, 'computer_name': self.computer_name}, {'$set': result}, True)
