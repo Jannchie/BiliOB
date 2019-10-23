@@ -5,6 +5,7 @@ import datetime
 
 
 def check():
+    print('启动数据库服务看门狗模块')
     while True:
         sleep(5)
         try:
