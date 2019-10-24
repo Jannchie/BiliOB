@@ -7,7 +7,7 @@ import time
 import json
 import logging
 from pymongo import MongoClient
-from db import settings
+from db import db
 # from mail import mailer
 from util import sub_channel_2_channel
 
@@ -34,12 +34,7 @@ class FromKan(scrapy.spiders.Spider):
         return dates
 
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db
         self.coll = self.db['video']  # 获得collection的句柄
 
     def start_requests(self):

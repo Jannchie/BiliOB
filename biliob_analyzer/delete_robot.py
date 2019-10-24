@@ -1,4 +1,4 @@
-from db import settings
+from db import db
 from db import db
 from bson import ObjectId
 coll = db['user']  # 获得collection的句柄

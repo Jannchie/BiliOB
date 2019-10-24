@@ -1,11 +1,7 @@
-from db import settings
+from db import db
 from pymongo import MongoClient
 import datetime
-client = MongoClient(settings['MINGO_HOST'], 27017)
-# 数据库登录需要帐号密码
-client.admin.authenticate(settings['MINGO_USER'],
-                          settings['MONGO_PSW'])
-db = client['biliob']  # 获得数据库的句柄
+db = db
 video_online = db['video_online']
 pass
 d = video_online.aggregate([

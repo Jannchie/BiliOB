@@ -1,4 +1,4 @@
-from db import settings
+from db import db
 from db import db
 import datetime
 coll = db['video']  # 获得collection的句柄

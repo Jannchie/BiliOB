@@ -11,7 +11,7 @@ from scrapy.http import Request
 from scrapy_redis.spiders import RedisSpider
 
 from biliob_spider.items import AuthorItem
-from db import redis_connect_string, settings
+from db import redis_connect_string, db
 from mail import mailer
 
 
@@ -27,12 +27,7 @@ class BiliobSpider(scrapy.spiders.Spider):
     }
     def __init__(self):
 
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 

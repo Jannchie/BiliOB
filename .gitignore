@@ -1,6 +1,5 @@
 *.pyc
 *.log
-db.py
 *.out
 biliob_spider.log
 debug.py

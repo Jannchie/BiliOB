@@ -8,7 +8,7 @@ import json
 import logging
 from pymongo import MongoClient
 import datetime
-from db import settings
+from db import db
 from db import redis_connect_string
 from scrapy_redis.spiders import RedisSpider
 import redis
@@ -27,12 +27,7 @@ class AuthorUpdateWithRedis(RedisSpider):
     }
 
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
         self.task = SpiderTask('作者数据更新爬虫', collection=self.db['tracer'])
