@@ -36,7 +36,7 @@ class FansWatcher(object):
         cause = {'type': 'video'}
         for each_v in videos:
             # 相差一日之内
-            if type(each_v['datetime']) == 'str':
+            if type(each_v['datetime']) == str:
                 pass
             elif (date - each_v['datetime']).days >= -1 and (date - each_v['datetime']).days <= 7:
                 temp_video['aid'] = each_v['aid']
