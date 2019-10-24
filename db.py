@@ -12,6 +12,11 @@ except Exception:
     os.system('systemctl restart mongod')
 
 redis_connect_string = env_dist.get("BILIOB_REDIS_CONNECTION_STRING")
-
-pool = redis.ConnectionPool(redis_connect_string)  # 实现一个连接池
-redis_connection = redis.Redis(connection_pool=pool)
+redis_list = redis_connect_string.split(":")
+pass_and_ip = redis_list[2].split('@')
+password = pass_and_ip[0]
+redis_ip = pass_and_ip[1]
+redis_port = redis_list[-1]
+pool = redis.ConnectionPool(password)  # 实现一个连接池
+redis_connection = redis.Redis(
+    host=redis_ip, port=redis_port, password=password)
