@@ -1,4 +1,4 @@
-from db import settings
+from db import db
 from pymongo import MongoClient
 from datetime import datetime
 from datetime import timedelta
@@ -11,12 +11,7 @@ logger = logging.getLogger(__name__)
 
 class VideoAnalyzer(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
 
     def video_filter(self):

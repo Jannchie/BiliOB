@@ -1,15 +1,10 @@
 from requests.adapters import HTTPAdapter
 import time
 import datetime
-from db import settings
+from db import db
 from pymongo import MongoClient, DESCENDING
 import requests
 
-client = MongoClient(settings['MINGO_HOST'], 27017)
-client.admin.authenticate(settings['MINGO_USER'],
-                          settings['MONGO_PSW'])
-
-db = client['biliob']  # 获得数据库的句柄
 author = db['author']  # 获得collection的句柄
 realtime_fans = db['realtime_fans']
 URL = 'https://api.bilibili.com/x/web-interface/card?mid={}'

@@ -5,8 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from pymongo import MongoClient
-from db import settings
-from db import mysql_connect
+from db import db
 import datetime
 import logging
 import redis
@@ -22,12 +21,7 @@ def sentCallBack(object_id, coll):
 
 class StrongPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
     def process_item(self, item, spider):
@@ -102,12 +96,7 @@ class StrongPipeline(object):
 
 class VideoPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
@@ -152,12 +141,7 @@ class VideoPipeline(object):
 
 class VideoPipelineFromKan(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -198,12 +182,7 @@ class VideoPipelineFromKan(object):
 
 class BangumiAndDonghuaPipeLine(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
 
     def process_item(self, item, spider):
         try:
@@ -233,12 +212,7 @@ class BangumiAndDonghuaPipeLine(object):
 
 class BangumiPipeLine(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['bangumi']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -271,12 +245,7 @@ class BangumiPipeLine(object):
 
 class DonghuaPipeLine(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['donghua']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -309,12 +278,7 @@ class DonghuaPipeLine(object):
 
 class SiteInfoPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['site_info']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -334,12 +298,7 @@ class SiteInfoPipeline(object):
 
 class AuthorPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
@@ -377,12 +336,7 @@ class AuthorPipeline(object):
 
 class OnlinePipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video_online']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -409,12 +363,7 @@ class OnlinePipeline(object):
 
 class TagAdderPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -435,12 +384,7 @@ class TagAdderPipeline(object):
 
 class TagPipeLine(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['tag']  # 获得collection的句柄
 
     def process_item(self, item, spider):
@@ -467,12 +411,7 @@ class TagPipeLine(object):
 
 class VideoAddPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['video']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
@@ -498,12 +437,7 @@ class VideoAddPipeline(object):
 
 class AuthorChannelPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['author']  # 获得collection的句柄
         self.redis_connection = redis.from_url(redis_connect_string)
 
@@ -526,12 +460,7 @@ class AuthorChannelPipeline(object):
 
 class BiliMonthlyRankPipeline(object):
     def __init__(self):
-        # 链接mongoDB
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                       settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db  # 获得数据库的句柄
         self.coll = self.db['monthly_rank']  # 获得collection的句柄
 
     def process_item(self, item, spider):

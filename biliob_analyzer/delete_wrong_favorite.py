@@ -1,4 +1,4 @@
-from db import settings
+from db import db
 from db import db
 coll = db['video']  # 获得collection的句柄
 docs = coll.find().batch_size(60)

@@ -11,7 +11,7 @@ from scrapy_redis.spiders import RedisSpider
 
 from biliob_spider.items import TagListItem
 from biliob_tracer.task import SpiderTask
-from db import db, settings
+from db import db
 from mail import mailer
 
 
@@ -26,12 +26,9 @@ class TagAdderSpider(RedisSpider):
             'biliob_spider.pipelines.TagAdderPipeline': 300
         },
     }
+
     def __init__(self):
-        self.client = MongoClient(settings['MINGO_HOST'], 27017)
-        # 数据库登录需要帐号密码
-        self.client.admin.authenticate(settings['MINGO_USER'],
-                                     settings['MONGO_PSW'])
-        self.db = self.client['biliob']  # 获得数据库的句柄
+        self.db = db
         self.task = SpiderTask('视频标签追加爬虫', collection=self.db['tracer'])
         pass
 
