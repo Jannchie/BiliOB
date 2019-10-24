@@ -14,7 +14,7 @@ from bson import ObjectId
 
 
 def sentCallBack(object_id, coll):
-    if object_id != None:
+    if object_id != None and object_id != 'null':
         coll.update_one({'_id': ObjectId(object_id)}, {
             '$set': {'isExecuted': True}})
 
