@@ -1,5 +1,4 @@
 from db import db
-from db import db
 import datetime
 from enum import Enum
 from scipy.interpolate import interp1d
@@ -37,7 +36,9 @@ class FansWatcher(object):
         cause = {'type': 'video'}
         for each_v in videos:
             # 相差一日之内
-            if (date - each_v['datetime']).days >= -1 and (date - each_v['datetime']).days <= 7:
+            if type(each_v['datetime']) == 'str':
+                pass
+            elif (date - each_v['datetime']).days >= -1 and (date - each_v['datetime']).days <= 7:
                 temp_video['aid'] = each_v['aid']
                 temp_video['title'] = each_v['title']
                 temp_video['pic'] = each_v['pic']
