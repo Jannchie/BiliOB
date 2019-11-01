@@ -1,0 +1,9 @@
+[submodule "biliob-frontend"]
+	path = biliob-frontend
+	url = git@github.com:Jannchie/biliob-frontend.git
+[submodule "biliob_backend"]
+	path = biliob_backend
+	url = git@github.com:Jannchie/biliob_backend.git
+[submodule "biliob-spider"]
+	path = biliob-spider
+	url = git@github.com:Jannchie/biliob-spider.git
