@@ -1,0 +1,2 @@
+from biliob_analyzer.video_rank import compute_video_rank_table
+compute_video_rank_table()
